@@ -2,6 +2,10 @@ import os
 
 from flask import Flask
 from app.db import db
+from app.resources import auth
+
+# LoginManager
+from flask_login import LoginManager
 
 
 def create_app(test_config=None):
@@ -32,10 +36,24 @@ def create_app(test_config=None):
 
         db.create_all()
 
+    # LoginManager Config
+    login_manager = LoginManager()
+    login_manager.login_view = "login"
+    login_manager.login_message = "Inicie sesion para acceder a este sitio"
+    login_manager.init_app(app)
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        # since the user_id is just the primary key of our user table, use it in the query for the user
+        return Usuario.query.get(int(user_id))
+
     # a simple page that says hello
     @app.route("/hello")
     def hello():
         return "Hello, World!"
 
-    
+    # Autenticación
+    app.add_url_rule("/login", "login", auth.login)
+    app.add_url_rule("/login", "login_auth", auth.login_post, methods=["POST"])
+    app.add_url_rule("/logout", "logout", auth.logout)
     return app

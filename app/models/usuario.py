@@ -3,6 +3,7 @@ from app.db import db
 # Login
 from flask_login import UserMixin
 
+
 class Usuario(db.Model, UserMixin):
     __tablename__ = "usuario"
 

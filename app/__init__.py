@@ -43,6 +43,9 @@ def create_app(test_config=None):
     db.init_app(app)
     with app.app_context():
         from app.models.usuario import Usuario
+        from app.models.tipo_modelo import TipoDeModelo
+        from app.models.coleccion import Coleccion
+        from app.models.coleccion_tipo import Coleccion_TipoDeModelo
 
         db.create_all()
 

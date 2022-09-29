@@ -1,6 +1,6 @@
 import os
 from os import environ
-from flask import Flask
+from flask import Flask, render_template
 from app.db import db
 from config import config
 from app.resources import auth
@@ -69,4 +69,10 @@ def create_app(test_config=None):
     app.add_url_rule("/login", "login", auth.login)
     app.add_url_rule("/login", "login_auth", auth.login_post, methods=["POST"])
     app.add_url_rule("/logout", "logout", auth.logout)
+
+    # Ruta para el Home (usando decorator)
+    @app.route("/")
+    def home():
+        return render_template("home.html")
+
     return app

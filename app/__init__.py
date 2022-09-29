@@ -3,7 +3,10 @@ from os import environ
 from flask import Flask, render_template
 from app.db import db
 from config import config
+
+# Resources
 from app.resources import auth
+from app.resources import coleccion
 
 # LoginManager
 from flask_login import LoginManager
@@ -75,4 +78,9 @@ def create_app(test_config=None):
     def home():
         return render_template("home.html")
 
+    # Ruta de colecciones
+    app.add_url_rule("/coleccion/nueva", "nueva_coleccion", coleccion.nuevo)
+    app.add_url_rule(
+        "/coleccion/crear", "crear_coleccion", coleccion.crear, methods=["POST"]
+    )
     return app

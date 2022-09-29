@@ -28,11 +28,6 @@ def login_post():
             url_for("login")
         )  # if user doesn't exist or password is wrong, reload the page
 
-    # Chequeamos que el usuario no este bloqueado
-    if not user.active:
-        flash("Esta usuario se encuentra bloqueado, comuniquese con un administrador")
-        return redirect(url_for("login"))
-
     # if the above check passes, then we know the user has the right credentials
     login_user(user, remember=remember)
     return redirect(url_for("home"))

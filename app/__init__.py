@@ -1,11 +1,13 @@
 import os
-
+from os import environ
 from flask import Flask
 from app.db import db
+from config import config
 from app.resources import auth
 
 # LoginManager
 from flask_login import LoginManager
+from flask_session import Session
 
 
 def create_app(test_config=None):
@@ -28,6 +30,14 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    # Carga de la configuración
+    env = environ.get("FLASK_ENV", "development")
+    app.config.from_object(config[env])
+
+    # Server Side session
+    app.config["SESSION_TYPE"] = "filesystem"
+    Session(app)
 
     # Configure db
     db.init_app(app)

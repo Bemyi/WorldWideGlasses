@@ -7,6 +7,7 @@ from config import config
 # Resources
 from app.resources import auth
 from app.resources import coleccion
+from app.resources import tipo
 
 # LoginManager
 from flask_login import LoginManager
@@ -46,9 +47,10 @@ def create_app(test_config=None):
     db.init_app(app)
     with app.app_context():
         from app.models.usuario import Usuario
-        from app.models.tipo_modelo import TipoDeModelo
+        from app.models.tipo import Tipo
+        from app.models.modelo import Modelo
         from app.models.coleccion import Coleccion
-        from app.models.coleccion_tipo import Coleccion_TipoDeModelo
+        from app.models.coleccion_modelo import Coleccion_Modelo
 
         db.create_all()
 
@@ -83,4 +85,8 @@ def create_app(test_config=None):
     app.add_url_rule(
         "/coleccion/crear", "crear_coleccion", coleccion.crear, methods=["POST"]
     )
+
+    # Ruta de tipo
+    app.add_url_rule("/tipo/nuevo", "nuevo_tipo", tipo.nuevo)
+    app.add_url_rule("/tipo/crear", "crear_tipo", tipo.crear, methods=["POST"])
     return app

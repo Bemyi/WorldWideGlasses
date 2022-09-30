@@ -4,11 +4,12 @@ from app.db import db
 from flask_login import UserMixin
 
 
-class TipoDeModelo(db.Model, UserMixin):
-    __tablename__ = "tipo_modelo"
+class Tipo(db.Model, UserMixin):
+    __tablename__ = "tipo"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), unique=True)
+    modelo = db.relationship("Modelo", backref="modelo", uselist=False)
     created_on = db.Column(db.DateTime, server_default=db.func.now())
     updated_on = db.Column(
         db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now()
@@ -19,3 +20,9 @@ class TipoDeModelo(db.Model, UserMixin):
         name,
     ):
         self.name = name
+
+    def crear(name):
+        """Crea un tipo de anteojo"""
+        tipo = Tipo(name)
+        db.session.add(tipo)
+        db.session.commit()

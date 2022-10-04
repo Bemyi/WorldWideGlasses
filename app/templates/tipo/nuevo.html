@@ -11,18 +11,13 @@
             <div class="card">
                 <div class="card-header">Nuevo tipo de anteojo</div>
                 <div class="card-body">
-
-                    <form class="form-horizontal" method="POST" action="{{ url_for('crear_tipo') }}" novalidate>
+                    <form method="POST" action="{{ url_for('crear_tipo') }}" novalidate>
                         {{ form.hidden_tag() }}
                         <div class="form-group">
                             <div class="form-group row justify-content-center">
-                                <label for="nombre" class="col-md-8 col-form-label text-md-right">{{ form.nombre.label
-                                    }}</label>
-                            </div>
-                            <div class="form-group row justify-content-center">
+                                <label for="nombre" class="col-md-8 col-form-label text-md-left">{{ form.nombre.label }}</label>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" id="nombre" name="nombre" placeholder=""
-                                        value="{{ form.nombre.data }}" required>
+                                    <input type="text" class="form-control" id="nombre" name="nombre" placeholder="" value="{{ form.nombre.data }}" required>
                                     {% for error in form.nombre.errors %}
                                     <span style="color:red;">{{ error }}</span>
                                     {% endfor %}
@@ -31,7 +26,7 @@
                         </div>
 
                         <div class="form-group row justify-content-center">
-                            <div class="col-md-8">
+                            <div class="col-md-6">
                                 <button type="submit" class="btn btn-primary">Cargar</button>
                                 <button type="reset" class="btn btn-primary">Limpiar</button>
                             </div>

@@ -16,7 +16,7 @@ def crear():
         plazo_fabricacion = form.plazo_fabricacion.data
         fecha_lanzamiento = form.fecha_lanzamiento.data
         Coleccion.crear(nombre, plazo_fabricacion, fecha_lanzamiento)
-        flash("¡El usuario fue creado con exito!")
+        flash("¡La colección fue creada con exito!")
         return redirect(url_for("home"))
     return render_template("coleccion/nuevo.html", form=form)
 

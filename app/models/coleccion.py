@@ -11,8 +11,8 @@ class Coleccion(db.Model, UserMixin):
     name = db.Column(db.String(255), unique=True)
     plazo_fabricacion = db.Column(db.DateTime)
     fecha_lanzamiento = db.Column(db.DateTime)
-    tipos = db.relationship(
-        "TipoDeModelo", secondary="coleccion_tipo", backref="coleccion"
+    modelos = db.relationship(
+        "Modelo", secondary="coleccion_modelo", backref="coleccion"
     )
     created_on = db.Column(db.DateTime, server_default=db.func.now())
     updated_on = db.Column(

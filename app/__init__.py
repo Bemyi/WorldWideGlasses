@@ -8,6 +8,7 @@ from config import config
 from app.resources import auth
 from app.resources import coleccion
 from app.resources import tipo
+from app.resources import modelo
 
 # LoginManager
 from flask_login import LoginManager
@@ -89,4 +90,9 @@ def create_app(test_config=None):
     # Ruta de tipo
     app.add_url_rule("/tipo/nuevo", "nuevo_tipo", tipo.nuevo)
     app.add_url_rule("/tipo/crear", "crear_tipo", tipo.crear, methods=["POST"])
+
+    # Ruta de modelo
+    app.add_url_rule("/modelo/nuevo", "nuevo_modelo", modelo.nuevo)
+    app.add_url_rule("/modelo/crear", "crear_modelo", modelo.crear, methods=["POST"])
+
     return app

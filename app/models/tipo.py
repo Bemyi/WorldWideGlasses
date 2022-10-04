@@ -26,3 +26,7 @@ class Tipo(db.Model, UserMixin):
         tipo = Tipo(name)
         db.session.add(tipo)
         db.session.commit()
+
+    def tipos():
+        """Devuelve todos los tipos"""
+        return Tipo.query.all()

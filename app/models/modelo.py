@@ -20,6 +20,14 @@ class Modelo(db.Model, UserMixin):
         self,
         name,
         descripcion,
+        tipo_id,
     ):
         self.name = name
         self.descripcion = descripcion
+        self.tipo_id = tipo_id
+
+    def crear(name, descripcion, tipo):
+        """Crea un modelo"""
+        modelo = Modelo(name, descripcion, tipo)
+        db.session.add(modelo)
+        db.session.commit()

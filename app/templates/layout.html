@@ -36,13 +36,13 @@
                             <a class="nav-link" href="{{ url_for('nuevo_modelo') }}">Crear modelo</a>
                         </li>
                     </ul>
-                    {% if current_user.is_authenticated %}
-                    <a type="button" class="btn btn-secondary-item" href="/logout">Cerrar sesión</a></li>
-                    {% else %}
-                    <a type="button" class="btn btn-secondary-item" href="{{ url_for('login') }}">
-                        Iniciar sesión
-                    </a>
-                    {% endif %}
+                    <span class="navbar-text">
+                        {% if current_user.is_authenticated %}
+                            <a type="button" class="btn btn-secondary-item" href="/logout">Cerrar sesión</a></li>
+                        {% else %}
+                            <a type="button" class="btn btn-secondary-item" href="{{ url_for('login') }}">Iniciar sesión</a>
+                        {% endif %}
+                    </span>      
                 </div>
             </div>
         </nav>

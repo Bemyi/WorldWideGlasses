@@ -16,46 +16,40 @@ def crear():
         plazo_fabricacion = form.plazo_fabricacion.data
         fecha_lanzamiento = form.fecha_lanzamiento.data
         Coleccion.crear(nombre, plazo_fabricacion, fecha_lanzamiento)
+        # Se instancia la tarea 
+        init_process()
+        # Se le asigna la tarea al usuario que creó la colección
+        #assign_task()
+        #Se finaliza la tarea
         flash("¡La colección fue creada con exito!")
         return redirect(url_for("home"))
     return render_template("coleccion/nuevo.html", form=form)
 
-
-@login_required
-def portal_login(url, username, password):
-    """Se logea y obtiene la cookie de bonita"""
-    # http = httplib2.Http(disable_ssl_certificate_validation=disable_cert_validation)
-    API = "/loginservice"
-    URL = url + API
-    body = {"username": username, "password": password, "redirect": "false"}
-    headers = {"Content-type": "application/x-www-form-urlencoded"}
-    requestSession = requests.Session()
-    response = requestSession.post(URL, data=body, headers=headers)
-    session["JSESSION"] = "JSESSIONID=" + response.cookies.get("JSESSIONID")
-    session["bonita_token"] = response.cookies.get("X-Bonita-API-Token")
-    print(response)
-    print(response.cookies.get("X-Bonita-API-Token"))
-
-
 @login_required
 def init_process():
+    #se le pega a la API y se recupera el id del proceso
     requestSession = requests.Session()
-    URL = "http://localhost:8080/bonita/API/bpm/process?s=prueba"
+    URL = "http://localhost:8080/bonita/API/bpm/process?s=Creación de colección"
     headers = {
         "Cookie": session["JSESSION"],
         "X-Bonita-API-Token": session["bonita_token"],
     }
     response = requestSession.get(URL, headers=headers)
     processId = response.json()[0]["id"]
-    print(response.json()[0]["id"])
+    
+    print("Get id del proceso:")
     print(response)
+    print("Process ID: " + response.json()[0]["id"])
+    
+    #se instancia el proceso con su id, creando una tarea
     URL = "http://localhost:8080/bonita/API/bpm/process/" + processId + "/instantiation"
     headers = {
         "Cookie": session["JSESSION"],
         "X-Bonita-API-Token": session["bonita_token"],
     }
     response = requestSession.post(URL, headers=headers)
-    print("Del iniciar proceso:")
+    
+    print("Instanciar proceso:")
     print(response)
 
 
@@ -84,8 +78,5 @@ def assign_task():
 @login_required
 def nuevo():
     """Template Nueva coleccion"""
-    form = FormAltaColeccion()
-    portal_login("http://localhost:8080/bonita", "walter.bates", "bpm")
-    init_process()
-    assign_task()
+    form = FormAltaColeccion() 
     return render_template("coleccion/nuevo.html", form=form)

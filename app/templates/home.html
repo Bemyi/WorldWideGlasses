@@ -4,5 +4,10 @@
 {{ super() }}
 {% endblock %}
 {% block content %}
-<h1>hola soy un menu</h1>
+<div class="card">
+    <div class="card-body">
+        <h1>Acá iría un listado de colecciones (por el momento que solo diga el nombre y la fecha)</h1>
+        <a class="btn btn-primary" href="{{ url_for('nueva_coleccion') }}" role="button">Crear colección</a>
+    </div>
+  </div>
 {% endblock %}

@@ -14,7 +14,6 @@ from app.resources import modelo
 from flask_login import LoginManager
 from flask_session import Session
 
-
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)

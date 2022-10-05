@@ -31,3 +31,9 @@ class Usuario(db.Model, UserMixin):
         self.first_name = first_name
         self.last_name = last_name
         self.password = password
+
+    def crear(email, username, first_name, last_name, password):
+        """Crea un usuario"""
+        user = Usuario(email, username, first_name, last_name, password)
+        db.session.add(user)
+        db.session.commit()

@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% block title %}Crear Usuario{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Nuevo usuario</div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages() %} {% if messages %}
+                    <div class="alert alert-danger">
+                        {{ messages[0] }}
+                    </div>
+                    {% endif %} {% endwith %}
+                    <form method="POST" action="{{ url_for('crear_usuario') }}">
+                        <div class="form-group row justify-content-center">
+                            <label class="col-md-6 col-form-label text-md-left" for="first_name">Nombre</label>
+                        </div>
+                        <div class="form-group row justify-content-center">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" name="first_name" placeholder="Lionel" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row justify-content-center">
+                            <label class="col-md-6 col-form-label text-md-left" for="last_name">Apellido</label>
+                        </div>
+                        <div class="form-group row justify-content-center">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" name="last_name" placeholder="Messi" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row justify-content-center">
+                            <label class="col-md-6 col-form-label text-md-left" for="email">Email</label>
+                        </div>
+                        <div class="form-group row justify-content-center">
+                            <div class="col-md-6">
+                                <input type="email" class="form-control" name="email" placeholder="lionel@goat.com" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row justify-content-center">
+                            <label class="col-md-6 col-form-label text-md-left" for="username">Nombre de usuario</label>
+                        </div>
+                        <div class="form-group row justify-content-center">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" name="username" placeholder="LaComadreja30" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row justify-content-center">
+                            <label class="col-md-6 col-form-label text-md-left" for="password">Contraseña</label>
+                        </div>
+                        <div class="form-group row justify-content-center">
+                            <div class="col-md-6">
+                                <input type="password" class="form-control" name="password" placeholder="*******" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row justify-content-center">
+                            <label class="col-md-6 col-form-label text-md-left" for="confirm">Repita la contraseña</label>
+                        </div>
+                        <div class="form-group row justify-content-center">
+                            <div class="col-md-6">
+                                <input type="password" class="form-control" name="confirm" placeholder="*******" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row justify-content-center">
+                            <div class="col-md-6">
+                                <div style="text-align: center;">
+                                    <button type="submit" class="btn btn-primary">Confirmar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

@@ -9,7 +9,6 @@ from app.resources import auth
 from app.resources import coleccion
 from app.resources import tipo
 from app.resources import modelo
-from app.resources import admin
 
 # LoginManager
 from flask_login import LoginManager, login_required
@@ -89,9 +88,5 @@ def create_app(test_config=None):
     # Ruta de modelo
     app.add_url_rule("/modelo/nuevo", "nuevo_modelo", modelo.nuevo)
     app.add_url_rule("/modelo/crear", "crear_modelo", modelo.crear, methods=["POST"])
-
-    # Ruta de usuario
-    app.add_url_rule("/usuario/nuevo", "nuevo_usuario", admin.nuevo_usuario)
-    app.add_url_rule("/usuario/crear", "crear_usuario", admin.crear_usuario, methods=["POST"])
 
     return app

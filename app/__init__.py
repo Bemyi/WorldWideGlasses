@@ -12,7 +12,7 @@ from app.resources import modelo
 from app.resources import admin
 
 # LoginManager
-from flask_login import LoginManager
+from flask_login import LoginManager, login_required
 from flask_session import Session
 
 def create_app(test_config=None):
@@ -51,7 +51,6 @@ def create_app(test_config=None):
         from app.models.tipo import Tipo
         from app.models.modelo import Modelo
         from app.models.coleccion import Coleccion
-        from app.models.coleccion_modelo import Coleccion_Modelo
 
         db.create_all()
 
@@ -66,11 +65,6 @@ def create_app(test_config=None):
         # since the user_id is just the primary key of our user table, use it in the query for the user
         return Usuario.query.get(int(user_id))
 
-    # a simple page that says hello
-    @app.route("/hello")
-    def hello():
-        return "Hello, World!"
-
     # Autenticación
     app.add_url_rule("/login", "login", auth.login)
     app.add_url_rule("/login", "login_auth", auth.login_post, methods=["POST"])
@@ -78,6 +72,7 @@ def create_app(test_config=None):
 
     # Ruta para el Home (usando decorator)
     @app.route("/")
+    @login_required
     def home():
         return render_template("home.html")
 

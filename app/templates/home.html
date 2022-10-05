@@ -6,9 +6,15 @@
 {% block content %}
 <div class="card">
     <div class="card-body">
-        <h2>Acá iría un listado de colecciones si sos user común (por el momento que solo diga el nombre y la fecha)</h2>
-        <h2>Si sos admin va un listado de usuarios con un botón para crear uno nuevo</h2>
-        <a class="btn btn-primary" href="{{ url_for('nueva_coleccion') }}" role="button">Crear colección</a>
+      {% with messages = get_flashed_messages() %} {% if messages %}
+      <div class="alert alert-success alert-dismissible">
+          {{ messages[0] }}
+      </div>
+      {% endif %} {% endwith %}
+      <h2>Acá iría un listado de colecciones si sos user común (por el momento que solo diga el nombre y la fecha)</h2>
+      <h2>Si sos admin va un listado de usuarios con un botón para crear uno nuevo</h2>
+      <a class="btn btn-primary" href="{{ url_for('nueva_coleccion') }}" role="button">Crear colección</a>
+      <a class="btn btn-primary" href="{{ url_for('nuevo_usuario') }}" role="button">Crear usuario</a>
     </div>
   </div>
 {% endblock %}

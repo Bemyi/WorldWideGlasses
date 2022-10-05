@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %}Nueva coleccion{% endblock %}
+{% block title %}Nueva colección{% endblock %}
 {% block head %}
 {{ super() }}
 <script src="{{ url_for('static', filename='js/select2.js')}}" type="text/javascript"></script>
@@ -7,20 +7,17 @@
 {% block content %}
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-8">
             <div class="card">
                 <div class="card-header">Nueva colección</div>
                 <div class="card-body">
-
-                    <form class="form-horizontal" method="POST" action="{{ url_for('crear_coleccion') }}" novalidate>
+                    <form class="form" method="POST" action="{{ url_for('crear_coleccion') }}">
+                        {{ form.csrf_token }}
                         {{ form.hidden_tag() }}
                         <div class="form-group">
                             <div class="form-group row justify-content-center">
-                                <label for="nombre" class="col-md-8 col-form-label text-md-right">{{ form.nombre.label
-                                    }}</label>
-                            </div>
-                            <div class="form-group row justify-content-center">
-                                <div class="col-md-8">
+                                <label for="nombre" class="col-md-10 col-form-label text-md-left">Nombre</label>
+                                <div class="col-md-10">
                                     <input type="text" class="form-control" id="nombre" name="nombre" placeholder=""
                                         value="{{ form.nombre.data }}" required>
                                     {% for error in form.nombre.errors %}
@@ -29,32 +26,73 @@
                                 </div>
                             </div>
                         </div>
-
+                        
                         <div class="form-group">
                             <div class="form-group row justify-content-center">
-                                <label for="plazo_fabricacion" class="col-md-8 col-form-label text-md-right">{{
-                                    form.plazo_fabricacion.label }}</label>
-                            </div>
-                            <div class="form-group row justify-content-center">
-                                <div class="col-md-8">
-                                    <input type="date" class="form-control" id="plazo_fabricacion"
-                                        name="plazo_fabricacion" placeholder=""
-                                        value="{{ form.plazo_fabricacion.data }}" required>
-                                    {% for error in form.plazo_fabricacion.errors %}
-                                    <span style="color:red;">{{ error }}</span>
-                                    {% endfor %}
+                                <div class="col-md-10">
+                                    <div class="card">
+                                        <div class="card-header">Modelos a incluir</div>
+                                        <div class="card-body">
+                                            <table class="table">
+                                                <tbody>
+                                                <tr>
+                                                    <div class="col">
+                                                        <td class="col align-self-center">
+                                                            Nombre
+                                                        </td>
+                                                    </div>
+                                                    <div class="col">
+                                                        <td class="col align-self-center">
+                                                            Descripcion
+                                                        </td>
+                                                    </div>
+                                                    <div class="col">
+                                                        <td class="col align-self-center">
+                                                            Tipo
+                                                        </td>
+                                                    </div>
+                                                    <div class="col">
+                                                        <td class="col align-self-center">
+                                                            Incluir
+                                                        </td>
+                                                    </div>
+                                                </tr>
+                                                {% for modelo in modelos %}
+                                                <tr>
+                                                    <div class="col">
+                                                        <td class="col align-self-center">
+                                                            {{modelo.name}}
+                                                        </td>
+                                                    </div>
+                                                    <div class="col">
+                                                        <td class="col align-self-center">
+                                                            {{modelo.descripcion}}
+                                                        </td>
+                                                    </div>
+                                                    <div class="col">
+                                                        <td class="col align-self-center">
+                                                            {{modelo.tipo.name}}
+                                                        </td>
+                                                    </div>
+                                                    <div class="col">
+                                                        <td class="col align-self-center">
+                                                            <input type="checkbox" id="{{modelo.name}}" name="modelos[]" value="{{modelo.id}}" data-on="Si" data-off="No" data-toggle="toggle" data-size="sm">
+                                                        </td>
+                                                    </div>                               
+                                                </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
+                        
                         <div class="form-group">
                             <div class="form-group row justify-content-center">
-                                <label for="fecha_lanzamiento" class="col-md-8 col-form-label text-md-right">{{
-                                    form.fecha_lanzamiento.label
-                                    }}</label>
-                            </div>
-                            <div class="form-group row justify-content-center">
-                                <div class="col-md-8">
+                                <label for="fecha_lanzamiento" class="col-md-10 col-form-label text-md-left">Fecha de Lanzamiento</label>
+                                <div class="col-md-10">
                                     <input type="date" class="form-control" id="fecha_lanzamiento"
                                         name="fecha_lanzamiento" placeholder=""
                                         value="{{ form.fecha_lanzamiento.data }}" required>
@@ -66,11 +104,16 @@
                         </div>
 
                         <div class="form-group row justify-content-center">
-                            <div class="col-md-8">
+                            <div class="col-md-10">
                                 <button type="submit" class="btn btn-primary">Cargar</button>
                                 <button type="reset" class="btn btn-primary">Limpiar</button>
                             </div>
                         </div>
+                        {% for field, errors in form.errors.items() %}
+                        <div class="alert alert-error">
+                            {{ form[field].label }}: {{ ', '.join(errors) }}
+                        </div>
+                        {% endfor %}
                     </form>
                 </div>
             </div>

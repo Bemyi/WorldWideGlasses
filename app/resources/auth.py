@@ -33,7 +33,7 @@ def login_post():
         )  # if user doesn't exist or password is wrong, reload the page
 
     # chequeamos si el usuario existe en la organización de bonita
-    response = portal_login("http://localhost:8080/bonita", user.username, password)
+    response = portal_login(user.username, password)
     if response.status_code!=204:
         flash("El usuario no forma parte de la organización.")
         return redirect(
@@ -47,16 +47,17 @@ def login_post():
 
 @login_required
 def logout():
+    # logout de bonita
+    portal_logout()
     logout_user()
     return redirect(url_for("login"))
 
-def portal_login(url, username, password):
+def portal_login(username, password):
     """Se logea y obtiene la cookie de bonita"""
     # http = httplib2.Http(disable_ssl_certificate_validation=disable_cert_validation)
     print("Usuario: "+username)
     print("Pass: "+password)
-    API = "/loginservice"
-    URL = url + API
+    URL = "http://localhost:8080/bonita/loginservice"
     body = {"username": username, "password": password, "redirect": "false"}
     headers = {"Content-type": "application/x-www-form-urlencoded"}
     requestSession = requests.Session()
@@ -73,3 +74,15 @@ def portal_login(url, username, password):
 
     # devuelvo la respuesta para saber si puedo loguearme o no
     return response
+
+@login_required
+def portal_logout():
+    requestSession = requests.Session()
+    URL = "http://localhost:8080/bonita/logoutservice"
+    headers = {
+        "Cookie": session["JSESSION"],
+        "X-Bonita-API-Token": session["bonita_token"],
+    }
+    response = requestSession.get(URL, headers=headers)
+    print("Logout Bonita:")
+    print(response)

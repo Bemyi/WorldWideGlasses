@@ -11,6 +11,7 @@ class Usuario(db.Model, UserMixin):
     email = db.Column(db.String(255), unique=True)
     username = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
+    coleccion = db.relationship("Coleccion", backref="usuario", uselist=False)
     created_on = db.Column(db.DateTime, server_default=db.func.now())
     updated_on = db.Column(
         db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now()

@@ -31,3 +31,7 @@ class Modelo(db.Model, UserMixin):
         modelo = Modelo(name, descripcion, tipo)
         db.session.add(modelo)
         db.session.commit()
+
+    def modelos():
+        """Devuelve todos los tipos"""
+        return Modelo.query.all()

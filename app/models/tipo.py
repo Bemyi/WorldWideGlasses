@@ -9,7 +9,7 @@ class Tipo(db.Model, UserMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), unique=True)
-    modelo = db.relationship("Modelo", backref="modelo", uselist=False)
+    modelo = db.relationship("Modelo", backref="tipo", uselist=False)
     created_on = db.Column(db.DateTime, server_default=db.func.now())
     updated_on = db.Column(
         db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now()

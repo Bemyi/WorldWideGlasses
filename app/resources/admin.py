@@ -44,9 +44,11 @@ def create_bonita_user(username, first_name, last_name, password): #no usa mail
         "Cookie": session["JSESSION"],
         "X-Bonita-API-Token": session["bonita_token"]
     }
-    data={"userName":username,"password":password,"firstname":first_name,"lastname":last_name, "enabled": "true"}
-    data = json.dumps(data)
-    response, content = requestSession.post(URL, headers=headers, body=data)
+    body={"userName":username,"password":password,"firstname":first_name,"lastname":last_name, "enabled": "true"}
+    data = json.dumps(body)
+    response = requestSession.post(URL, headers=headers, data=data)
+    print("Crear user bonita:")
+    print(response)
     if response.status_code==200:
-        data = json.loads(content)
-        print("ID nuevo user: "+data['id'])
+        print("ID nuevo user: "+response.json()['id'])
+    #Habría que seguir pero no es necesario

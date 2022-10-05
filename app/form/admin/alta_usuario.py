@@ -7,7 +7,7 @@ class FormAltaUsuario(FlaskForm):
     first_name = StringField('Nombre', validators=[
         DataRequired(message="El campo nombre es obligatorio"),
         Regexp(
-            "^[A-Za-záéíóúÁÉÍÓÚ ]*[A-Za-záéíóúÁÉÍÓÚ][A-Za-záéíóúÁÉÍÓÚ ]*$",
+            "^[A-Za-záéíóúÁÉÍÓÚñÑ ]*[A-Za-záéíóúÁÉÍÓÚñÑ][A-Za-záéíóúÁÉÍÓÚñÑ ]*$",
             message="El campo nombre solo puede contener letras",
         ),
         Length(
@@ -17,7 +17,7 @@ class FormAltaUsuario(FlaskForm):
     last_name = StringField('Apellido', validators=[
         DataRequired(message="El campo apellido es obligatorio"),
         Regexp(
-            "^[A-Za-záéíóúÁÉÍÓÚ ]*[A-Za-záéíóúÁÉÍÓÚ][A-Za-záéíóúÁÉÍÓÚ ]*$",
+            "^[A-Za-záéíóúÁÉÍÓÚñÑ ]*[A-Za-záéíóúÁÉÍÓÚñÑ][A-Za-záéíóúÁÉÍÓÚñÑ ]*$",
             message="El campo nombre solo puede contener letras",
         ),
         Length(

@@ -9,10 +9,6 @@ class FormAltaTipo(FlaskForm):
         "Nombre",
         validators=[
             DataRequired(message="El campo nombre es obligatorio"),
-            Regexp(
-                "^[A-Za-záéíóúÁÉÍÓÚ ]*[A-Za-záéíóúÁÉÍÓÚ][A-Za-záéíóúÁÉÍÓÚ ]*$",
-                message="El campo nombre solo puede contener letras",
-            ),
             Length(
                 min=2, max=40, message="El mínimo de caracteres es 2 y el máximo 40"
             ),

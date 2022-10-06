@@ -5,91 +5,97 @@
 {% endblock %}
 {% block content %}
 <div class="container">
-  <div class="row justify-content-center">
-    {% with messages = get_flashed_messages() %} {% if messages %}
-    <div class="alert alert-success alert-dismissible">
-        {{ messages[0] }}
-    </div>
-    {% endif %} {% endwith %}
-    <div class="col-md-10">
-      <div class="card align-self-center">
-          <div class="card-header">Mis Colecciones</div>
-          <div class="card-body">
-              <table class="table">
-                <thead class="thead-light">
-                  <tr>
-                    <th class="col align-self-center">
-                        Nombre
-                    </th>
-                    <th class="col align-self-center">
-                        Fecha de lanzamiento
-                    </th>
-                    <th class="col align-self-center">
-                        Modelos
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                {% for coleccion in current_user.colecciones %}
-                <tr>
-                  <td class="col align-self-center">
-                      {{coleccion.name}}
-                  </td>
-                  <td class="col align-self-center">
-                      {{coleccion.fecha_lanzamiento.strftime('%d-%m-%Y')}}
-                  </td>
-                  <td class="col align-self-center">
-                    <button type="button" class="btn-sm btn-primary" data-toggle="modal" data-target="#modelosModal{{coleccion.id}}">
-                      Ver
-                    </button>
+    <div class="row justify-content-center">
+        {% with messages = get_flashed_messages() %} {% if messages %}
+        <div class="alert alert-success alert-dismissible">
+            {{ messages[0] }}
+            <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %} {% endwith %}
+        <div class="col-md-10">
+            <div class="card align-self-center">
+                <div class="card-header">Mis Colecciones</div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead class="thead-light">
+                            <tr>
+                                <th class="col align-self-center">
+                                    Nombre
+                                </th>
+                                <th class="col align-self-center">
+                                    Fecha de lanzamiento
+                                </th>
+                                <th class="col align-self-center">
+                                    Modelos
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for coleccion in current_user.colecciones %}
+                            <tr>
+                                <td class="col align-self-center">
+                                    {{coleccion.name}}
+                                </td>
+                                <td class="col align-self-center">
+                                    {{coleccion.fecha_lanzamiento.strftime('%d-%m-%Y')}}
+                                </td>
+                                <td class="col align-self-center">
+                                    <button type="button" class="btn-sm btn-primary" data-toggle="modal"
+                                        data-target="#modelosModal{{coleccion.id}}">
+                                        Ver
+                                    </button>
 
-                    <div class="modal fade" id="modelosModal{{coleccion.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                      <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Modelos de la coleccion {{coleccion.name}}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                            </button>
-                          </div>
-                          <div class="modal-body">
-                            <table class="table">
-                              <thead>
-                                <tr>
-                                  <th scope="col">Nombre</th>
-                                  <th scope="col">Descripción</th>
-                                  <th scope="col">Tipo</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {% for modelo in coleccion.coleccion_tiene_modelo %}
-                                <tr>
-                                  <td>{{modelo.name}}</td>
-                                  <td>{{modelo.descripcion}}</td>
-                                  <td>{{modelo.tipo.name}}</td>
-                                </tr>
-                                {% endfor %}
-                              </tbody>
-                            </table>
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>                            
-                </tr>
-                {% endfor %}
-                </tbody>
-              </table>
-          </div>
-      </div>
+                                    <div class="modal fade" id="modelosModal{{coleccion.id}}" tabindex="-1"
+                                        role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Modelos de la
+                                                        coleccion {{coleccion.name}}</h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table class="table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th scope="col">Nombre</th>
+                                                                <th scope="col">Descripción</th>
+                                                                <th scope="col">Tipo</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for modelo in coleccion.coleccion_tiene_modelo %}
+                                                            <tr>
+                                                                <td>{{modelo.name}}</td>
+                                                                <td>{{modelo.descripcion}}</td>
+                                                                <td>{{modelo.tipo.name}}</td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="col-md-10 justify-content-center">
+            <a class="btn btn-primary" href="{{ url_for('nueva_coleccion') }}" role="button">Crear colección</a>
+        </div>
     </div>
-    <br>
-    <div class="col-md-10 justify-content-center">
-      <a class="btn btn-primary" href="{{ url_for('nueva_coleccion') }}" role="button">Crear colección</a>
-    </div>
-  </div>
 </div>
 {% endblock %}

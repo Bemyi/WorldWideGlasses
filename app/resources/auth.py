@@ -4,16 +4,16 @@ from flask_login import login_user, logout_user, login_required
 from app.models.usuario import Usuario
 from werkzeug.security import check_password_hash
 import requests
+
 # Password de Walter
 from werkzeug.security import generate_password_hash
+
 
 def login():
     """Template de login. Si el usuario esta autenticado
     no puede volver a logearse"""
     if current_user.is_authenticated:
         return redirect(url_for("home"))
-    pass_walter = generate_password_hash("bpm", "sha256")
-    flash("La contraseña de Walter es: " + pass_walter)
     return render_template("auth/login.html")
 
 
@@ -22,7 +22,7 @@ def login_post():
     password = request.form.get("password")
     remember = True if request.form.get("remember") else False
 
-    user = Usuario.query.filter_by(email=email).first()  
+    user = Usuario.query.filter_by(email=email).first()
 
     # Chequeamos si existe el usuario
     # Chequeamos si la contraseña corresponde con la hasheada
@@ -34,14 +34,12 @@ def login_post():
 
     # chequeamos si el usuario existe en la organización de bonita
     response = portal_login(user.username, password)
-    if response.status_code!=204:
+    if response.status_code != 204:
         flash("El usuario no forma parte de la organización.")
-        return redirect(
-            url_for("login")
-        ) 
+        return redirect(url_for("login"))
 
     # if the above check passes, then we know the user has the right credentials
-    login_user(user, remember=remember)   
+    login_user(user, remember=remember)
     return redirect(url_for("home"))
 
 
@@ -52,28 +50,25 @@ def logout():
     logout_user()
     return redirect(url_for("login"))
 
+
 def portal_login(username, password):
     """Se logea y obtiene la cookie de bonita"""
-    # http = httplib2.Http(disable_ssl_certificate_validation=disable_cert_validation)
-    print("Usuario: "+username)
-    print("Pass: "+password)
     URL = "http://localhost:8080/bonita/loginservice"
     body = {"username": username, "password": password, "redirect": "false"}
     headers = {"Content-type": "application/x-www-form-urlencoded"}
     requestSession = requests.Session()
     response = requestSession.post(URL, data=body, headers=headers)
+    print("Response del login:")
     print(response)
     # si todo sale bien seteo las variables de sesión
-    if response.status_code==204:
+    if response.status_code == 204:
         session["JSESSION"] = "JSESSIONID=" + response.cookies.get("JSESSIONID")
         session["bonita_token"] = response.cookies.get("X-Bonita-API-Token")
-        
-        print("Login Bonita:")
-        print(response)
         print("Bonita-Api-Token: " + response.cookies.get("X-Bonita-API-Token"))
-
+        print("JSESSIONID: " + response.cookies.get("JSESSIONID"))
     # devuelvo la respuesta para saber si puedo loguearme o no
     return response
+
 
 @login_required
 def portal_logout():
@@ -84,5 +79,5 @@ def portal_logout():
         "X-Bonita-API-Token": session["bonita_token"],
     }
     response = requestSession.get(URL, headers=headers)
-    print("Logout Bonita:")
+    print("Response de logout Bonita:")
     print(response)

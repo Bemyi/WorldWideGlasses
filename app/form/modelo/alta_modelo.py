@@ -12,10 +12,6 @@ class FormAltaModelo(FlaskForm):
         "Nombre",
         validators=[
             DataRequired(message="El campo nombre es obligatorio"),
-            Regexp(
-                "^[A-Za-záéíóúÁÉÍÓÚ ]*[A-Za-záéíóúÁÉÍÓÚ][A-Za-záéíóúÁÉÍÓÚ ]*$",
-                message="El campo nombre solo puede contener letras",
-            ),
             Length(
                 min=2, max=40, message="El mínimo de caracteres es 2 y el máximo 40"
             ),
@@ -26,10 +22,6 @@ class FormAltaModelo(FlaskForm):
         "Descripción",
         validators=[
             DataRequired(message="El campo descripción es obligatorio"),
-            Regexp(
-                "^[A-Za-záéíóúÁÉÍÓÚ ]*[A-Za-záéíóúÁÉÍÓÚ][A-Za-záéíóúÁÉÍÓÚ ]*$",
-                message="El campo descripción solo puede contener letras",
-            ),
             Length(
                 min=2, max=140, message="El mínimo de caracteres es 2 y el máximo 140"
             ),
@@ -40,10 +32,6 @@ class FormAltaModelo(FlaskForm):
         "Tipo",
         validators=[
             DataRequired(message="El campo tipo es obligatorio"),
-            Regexp(
-                "^[A-Za-z0-9áéíóúÁÉÍÓÚ ]*[A-Za-z0-9áéíóúÁÉÍÓÚ][A-Za-z0-9áéíóúÁÉÍÓÚ ]*$",
-                message="El campo tipo solo puede contener letras y números",
-            ),
         ],
         choices=["1", "2"],
     )

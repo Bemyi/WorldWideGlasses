@@ -26,7 +26,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <div class="form-group row justify-content-center">
                                 <div class="col-md-10">
@@ -35,52 +35,54 @@
                                         <div class="card-body">
                                             <table class="table">
                                                 <tbody>
-                                                <tr>
-                                                    <div class="col">
-                                                        <td class="col align-self-center">
-                                                            Nombre
-                                                        </td>
-                                                    </div>
-                                                    <div class="col">
-                                                        <td class="col align-self-center">
-                                                            Descripcion
-                                                        </td>
-                                                    </div>
-                                                    <div class="col">
-                                                        <td class="col align-self-center">
-                                                            Tipo
-                                                        </td>
-                                                    </div>
-                                                    <div class="col">
-                                                        <td class="col align-self-center">
-                                                            Incluir
-                                                        </td>
-                                                    </div>
-                                                </tr>
-                                                {% for modelo in modelos %}
-                                                <tr>
-                                                    <div class="col">
-                                                        <td class="col align-self-center">
-                                                            {{modelo.name}}
-                                                        </td>
-                                                    </div>
-                                                    <div class="col">
-                                                        <td class="col align-self-center">
-                                                            {{modelo.descripcion}}
-                                                        </td>
-                                                    </div>
-                                                    <div class="col">
-                                                        <td class="col align-self-center">
-                                                            {{modelo.tipo.name}}
-                                                        </td>
-                                                    </div>
-                                                    <div class="col">
-                                                        <td class="col align-self-center">
-                                                            <input type="checkbox" id="{{modelo.name}}" name="modelos[]" value="{{modelo.id}}" data-on="Si" data-off="No" data-toggle="toggle" data-size="sm">
-                                                        </td>
-                                                    </div>                               
-                                                </tr>
-                                                {% endfor %}
+                                                    <tr>
+                                                        <div class="col">
+                                                            <td class="col align-self-center">
+                                                                Nombre
+                                                            </td>
+                                                        </div>
+                                                        <div class="col">
+                                                            <td class="col align-self-center">
+                                                                Descripcion
+                                                            </td>
+                                                        </div>
+                                                        <div class="col">
+                                                            <td class="col align-self-center">
+                                                                Tipo
+                                                            </td>
+                                                        </div>
+                                                        <div class="col">
+                                                            <td class="col align-self-center">
+                                                                Incluir
+                                                            </td>
+                                                        </div>
+                                                    </tr>
+                                                    {% for modelo in modelos %}
+                                                    <tr>
+                                                        <div class="col">
+                                                            <td class="col align-self-center">
+                                                                {{modelo.name}}
+                                                            </td>
+                                                        </div>
+                                                        <div class="col">
+                                                            <td class="col align-self-center">
+                                                                {{modelo.descripcion}}
+                                                            </td>
+                                                        </div>
+                                                        <div class="col">
+                                                            <td class="col align-self-center">
+                                                                {{modelo.tipo.name}}
+                                                            </td>
+                                                        </div>
+                                                        <div class="col">
+                                                            <td class="col align-self-center">
+                                                                <input type="checkbox" id="{{modelo.name}}"
+                                                                    name="modelos[]" value="{{modelo.id}}" data-on="Si"
+                                                                    data-off="No" data-toggle="toggle" data-size="sm">
+                                                            </td>
+                                                        </div>
+                                                    </tr>
+                                                    {% endfor %}
                                                 </tbody>
                                             </table>
                                         </div>
@@ -88,14 +90,15 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <div class="form-group row justify-content-center">
-                                <label for="fecha_lanzamiento" class="col-md-10 col-form-label text-md-left">Fecha de Lanzamiento</label>
+                                <label for="fecha_lanzamiento" class="col-md-10 col-form-label text-md-left">Fecha de
+                                    Lanzamiento</label>
                                 <div class="col-md-10">
                                     <input type="date" class="form-control" id="fecha_lanzamiento"
                                         name="fecha_lanzamiento" placeholder=""
-                                        value="{{ form.fecha_lanzamiento.data }}" required>
+                                        value="{{ form.fecha_lanzamiento.data }}" min="2022-10-06" required>
                                     {% for error in form.fecha_lanzamiento.errors %}
                                     <span style="color:red;">{{ error }}</span>
                                     {% endfor %}

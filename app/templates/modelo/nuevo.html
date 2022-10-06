@@ -16,16 +16,19 @@
                         {{ form.hidden_tag() }}
                         <div class="form-group">
                             <div class="form-group row justify-content-center">
-                                <label for="nombre" class="col-md-8 col-form-label text-md-left">{{ form.nombre.label }}</label>
+                                <label for="nombre" class="col-md-8 col-form-label text-md-left">{{ form.nombre.label
+                                    }}</label>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" id="nombre" name="nombre" placeholder="" value="{{ form.nombre.data }}" required>
+                                    <input type="text" class="form-control" id="nombre" name="nombre" placeholder=""
+                                        value="{{ form.nombre.data }}" required>
                                     {% for error in form.nombre.errors %}
                                     <span style="color:red;">{{ error }}</span>
                                     {% endfor %}
                                 </div>
                             </div>
                             <div class="form-group row justify-content-center">
-                                <label for="descripcion" class="col-md-8 col-form-label text-md-left">{{ form.descripcion.label }}</label>
+                                <label for="descripcion" class="col-md-8 col-form-label text-md-left">{{
+                                    form.descripcion.label }}</label>
                                 <div class="col-md-8">
                                     <input type="text" class="form-control" id="descripcion" name="descripcion"
                                         placeholder="" value="{{ form.descripcion.data }}" required>
@@ -35,16 +38,13 @@
                                 </div>
                             </div>
                             <div class="form-group row justify-content-center">
-                                <label for="tipo" class="col-md-8 col-form-label text-md-left">{{ form.tipo.label }}</label>
+                                <label for="tipo" class="col-md-8 col-form-label text-md-left">Tipos</label>
                                 <div class="col-md-8">
                                     <select class="form-control" id="tipo" name="tipo">
                                         {% for tipo in tipos %}
                                         <option value="{{tipo.id}}">{{tipo.name}}</option>
                                         {% endfor %}
                                     </select>
-                                    {% for error in form.tipo.errors %}
-                                    <span style="color:red;">{{ error }}</span>
-                                    {% endfor %}
                                 </div>
                             </div>
                         </div>

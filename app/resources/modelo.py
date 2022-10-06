@@ -1,4 +1,4 @@
-from flask import redirect, render_template, url_for, flash
+from flask import redirect, render_template, url_for, flash, session, request
 from flask_login import login_required
 from app.form.modelo.alta_modelo import FormAltaModelo
 from app.models.modelo import Modelo
@@ -12,7 +12,7 @@ def crear():
     if form.validate_on_submit():
         nombre = form.nombre.data
         descripcion = form.descripcion.data
-        tipo = form.tipo.data
+        tipo = request.form.get("tipo")
         Modelo.crear(nombre, descripcion, tipo)
         flash("¡El modelo fue creado con exito!")
         return redirect(url_for("home"))
@@ -22,7 +22,10 @@ def crear():
 
 @login_required
 def nuevo():
-    """Template Nuevo modelo"""
-    form = FormAltaModelo()
-    tipos = Tipo.tipos()
-    return render_template("modelo/nuevo.html", form=form, tipos=tipos)
+    if session["current_rol"] == "Creativa":
+        """Template Nuevo modelo"""
+        form = FormAltaModelo()
+        tipos = Tipo.tipos()
+        return render_template("modelo/nuevo.html", form=form, tipos=tipos)
+    flash("error", "No tienes permiso para acceder a este sitio")
+    return redirect(url_for("home"))

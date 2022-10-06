@@ -5,13 +5,14 @@
 {% endblock %}
 {% block content %}
 <div class="container">
+    {% with messages = get_flashed_messages() %} {% if messages %}
+    <div class="alert alert-success alert-dismissible">
+        {{ messages[0] }}
+        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %} {% endwith %}
     <div class="row justify-content-center">
-        {% with messages = get_flashed_messages() %} {% if messages %}
-        <div class="alert alert-success alert-dismissible">
-            {{ messages[0] }}
-            <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endif %} {% endwith %}
+        {% if session["current_rol"] == "Creativa"%}
         <div class="col-md-10">
             <div class="card align-self-center">
                 <div class="card-header">Mis Colecciones</div>
@@ -96,6 +97,9 @@
         <div class="col-md-10 justify-content-center">
             <a class="btn btn-primary" href="{{ url_for('nueva_coleccion') }}" role="button">Crear colección</a>
         </div>
+        {% else %}
+        <h2>proximamente...</h2>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -97,6 +97,7 @@ def set_bonita_variable(case_id, variable_name, variable_value, type):
     print(response.json()["value"])
 
 
+@login_required
 def getBonitaHeaders():
     headers = {
         "Cookie": session["JSESSION"],
@@ -107,7 +108,10 @@ def getBonitaHeaders():
 
 @login_required
 def nuevo():
-    """Template Nueva coleccion"""
-    form = FormAltaColeccion()
-    modelos = Modelo.modelos()
-    return render_template("coleccion/nuevo.html", form=form, modelos=modelos)
+    if session["current_rol"] == "Creativa":
+        """Template Nueva coleccion"""
+        form = FormAltaColeccion()
+        modelos = Modelo.modelos()
+        return render_template("coleccion/nuevo.html", form=form, modelos=modelos)
+    flash("error", "No tienes permiso para acceder a este sitio")
+    return redirect(url_for("home"))

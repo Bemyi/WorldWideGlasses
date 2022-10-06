@@ -28,11 +28,4 @@ class FormAltaModelo(FlaskForm):
         ],
         default="",
     )
-    tipo = SelectField(
-        "Tipo",
-        validators=[
-            DataRequired(message="El campo tipo es obligatorio"),
-        ],
-        choices=["1", "2"],
-    )
     enviar = SubmitField("Guardar")

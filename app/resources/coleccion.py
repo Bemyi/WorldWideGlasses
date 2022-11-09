@@ -11,25 +11,30 @@ from app.models.modelo import Modelo
 @login_required
 def crear():
     """Creación de una nueva coleccion"""
-    form = FormAltaColeccion()
-    if form.validate_on_submit():
-        nombre = form.nombre.data
-        fecha_lanzamiento = form.fecha_lanzamiento.data
-        modelos = request.form.getlist("modelos[]")
-        Coleccion.crear(nombre, fecha_lanzamiento, current_user.id, modelos)
-        # Se instancia la tarea
-        case_id = init_process()
-        # Se le asigna la tarea al usuario que creó la colección
-        # assign_task()
-        # Se finaliza la tarea
-        # to-do
-        # Cargar la variable en bonita
-        coleccion_id = Coleccion.get_by_name(nombre).id
-        set_bonita_variable(case_id, "coleccion_id", coleccion_id, "java.lang.Integer")
-        flash("¡La colección fue creada con exito!")
-        return redirect(url_for("home"))
-    modelos = Modelo.modelos()
-    return render_template("coleccion/nuevo.html", form=form, modelos=modelos)
+    if session["current_rol"] == "Creativa":
+        form = FormAltaColeccion()
+        if form.validate_on_submit():
+            nombre = form.nombre.data
+            fecha_lanzamiento = form.fecha_lanzamiento.data
+            modelos = request.form.getlist("modelos[]")
+            Coleccion.crear(nombre, fecha_lanzamiento, current_user.id, modelos)
+            # Se instancia la tarea
+            case_id = init_process()
+            # Se le asigna la tarea al usuario que creó la colección
+            # assign_task()
+            # Se finaliza la tarea
+            # to-do
+            # Cargar la variable en bonita
+            coleccion_id = Coleccion.get_by_name(nombre).id
+            set_bonita_variable(
+                case_id, "coleccion_id", coleccion_id, "java.lang.Integer"
+            )
+            flash("¡La colección fue creada con exito!")
+            return redirect(url_for("home"))
+        modelos = Modelo.modelos()
+        return render_template("coleccion/nuevo.html", form=form, modelos=modelos)
+    flash("No tienes permiso para acceder a este sitio")
+    return redirect(url_for("home"))
 
 
 @login_required
@@ -113,5 +118,5 @@ def nuevo():
         form = FormAltaColeccion()
         modelos = Modelo.modelos()
         return render_template("coleccion/nuevo.html", form=form, modelos=modelos)
-    flash("error", "No tienes permiso para acceder a este sitio")
+    flash("No tienes permiso para acceder a este sitio")
     return redirect(url_for("home"))

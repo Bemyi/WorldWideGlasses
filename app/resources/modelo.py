@@ -8,16 +8,19 @@ from app.models.tipo import Tipo
 @login_required
 def crear():
     """Creación de un nuevo modelo"""
-    form = FormAltaModelo()
-    if form.validate_on_submit():
-        nombre = form.nombre.data
-        descripcion = form.descripcion.data
-        tipo = request.form.get("tipo")
-        Modelo.crear(nombre, descripcion, tipo)
-        flash("¡El modelo fue creado con exito!")
-        return redirect(url_for("home"))
-    tipos = Tipo.tipos()
-    return render_template("modelo/nuevo.html", form=form, tipos=tipos)
+    if session["current_rol"] == "Creativa":
+        form = FormAltaModelo()
+        if form.validate_on_submit():
+            nombre = form.nombre.data
+            descripcion = form.descripcion.data
+            tipo = request.form.get("tipo")
+            Modelo.crear(nombre, descripcion, tipo)
+            flash("¡El modelo fue creado con exito!")
+            return redirect(url_for("home"))
+        tipos = Tipo.tipos()
+        return render_template("modelo/nuevo.html", form=form, tipos=tipos)
+    flash("No tienes permiso para acceder a este sitio")
+    return redirect(url_for("home"))
 
 
 @login_required
@@ -27,5 +30,5 @@ def nuevo():
         form = FormAltaModelo()
         tipos = Tipo.tipos()
         return render_template("modelo/nuevo.html", form=form, tipos=tipos)
-    flash("error", "No tienes permiso para acceder a este sitio")
+    flash("No tienes permiso para acceder a este sitio")
     return redirect(url_for("home"))

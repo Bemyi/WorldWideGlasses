@@ -1,4 +1,4 @@
-from flask import redirect, render_template, request, url_for, flash, session
+from flask import redirect, render_template, request, url_for, flash, session, jsonify
 from flask_login import current_user, login_required
 from app.form.coleccion.alta_coleccion import FormAltaColeccion
 from app.form.coleccion.seleccionar_materiales import FormSeleccionarMateriales
@@ -174,16 +174,27 @@ def seleccionar_materiales():
 
 @login_required
 def seleccion_materiales():
+    materiales_todos = Material.materiales()
     if session["current_rol"] == "Creativa":
         """Template Seleccionar materiales"""
         materiales = request.form.getlist("materiales[]")
         token = login_api_reservas()
         listado = listado_api_reservas(token, materiales)
-        flash("¡Los materiales fueron seleccionados con exito!")
-        return redirect(url_for("home"))
+        # filtramos materiales obtenidos
+        mats_obtenidos = set()
+        for e in listado:
+            mats_obtenidos.add(e["name"])
+        if not (set(materiales) == mats_obtenidos):
+            materiales_faltan = set(materiales) - mats_obtenidos
+            flash("Faltan los siguientes materiales: " + str(materiales_faltan))
+            return render_template(
+                "coleccion/seleccion_materiales.html", materiales=materiales_todos
+            )
+        return render_template("coleccion/reservar_materiales.html", materiales=listado)
     flash("Algo falló")
-    materiales = Material.materiales()
-    return render_template("coleccion/seleccion_materiales.html", materiales=materiales)
+    return render_template(
+        "coleccion/seleccion_materiales.html", materiales=materiales_todos
+    )
 
 
 @login_required
@@ -205,7 +216,6 @@ def listado_api_reservas(token, materiales):
     requestSession = requests.Session()
     URL = "http://127.0.0.1:8000/materiales"
     body = {"names": materiales}
-    print(token)
     headers = {"Content-Type": "application/json", "Authorization": "Bearer " + token}
     data = json.dumps(body)
     response = requestSession.put(URL, data=data, headers=headers)
@@ -213,19 +223,40 @@ def listado_api_reservas(token, materiales):
     return listado
 
 
-# @login_required
-# def reservar_materiales():
-#     if session["current_rol"] == "Creativa":
-#         """Template Reservar materiales"""
-#         form = FormSeleccionarMateriales()
-#         materiales = request.form.getlist("materiales[]")
-#         print(materiales)
-#         cantidades = request.form.getlist("cantidades[]")
-#         print(cantidades)
-#         x = len(materiales)
-#         while x != 0:
-#             print(cantidades[x - 1])
-#             x = x - 1
-#         return redirect(url_for("home"))
-#     flash("No tienes permiso para acceder a este sitio")
-#     return redirect(url_for("home"))
+@login_required
+def reservar_api_reservas(token, materiales):
+    requestSession = requests.Session()
+    URL = "http://127.0.0.1:8000/reservar_materiales"
+    body = {
+        "materials": [
+            {"id": 1, "quantity": 1},
+            {"id": 2, "quantity": 1},
+            {"id": 3, "quantity": 1},
+        ],
+        "user_id": 1,
+        "colection_id": 1,
+    }
+    headers = {"Content-Type": "application/json", "Authorization": "Bearer " + token}
+    data = json.dumps(body)
+    response = requestSession.put(URL, data=data, headers=headers)
+    listado = response.json()
+    return listado
+
+
+@login_required
+def reservar_materiales():
+    if session["current_rol"] == "Creativa":
+        """Template Reservar materiales"""
+        token = login_api_reservas()
+        materiales = request.form.getlist("materiales[]")
+        cantidades = request.form.getlist("cantidad[]")
+        listado = []
+        print(cantidades)
+        print(materiales)
+        for i in range(len(materiales)):
+            listado.append({"id": materiales[i], "cantidad": cantidades[i]})
+        print(listado)
+        print(jsonify(listado))
+        reservar_api_reservas(token, materiales)
+    flash("No tienes permiso para acceder a este sitio")
+    return redirect(url_for("home"))

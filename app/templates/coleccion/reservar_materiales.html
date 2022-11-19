@@ -11,9 +11,7 @@
             <div class="card">
                 <div class="card-header">Seleccionar materiales</div>
                 <div class="card-body">
-                    <form class="form" method="POST" action="{{ url_for('enviar_materiales') }}">
-                        {{ form.csrf_token }}
-                        {{ form.hidden_tag() }}
+                    <form class="form" method="POST" action="{{ url_for('reservar_materiales') }}">
 
                         <div class="form-group">
                             <div class="form-group row justify-content-center">
@@ -31,6 +29,16 @@
                                                         </div>
                                                         <div class="col">
                                                             <td class="col align-self-center">
+                                                                Stock
+                                                            </td>
+                                                        </div>
+                                                        <div class="col">
+                                                            <td class="col align-self-center">
+                                                                Proveedor
+                                                            </td>
+                                                        </div>
+                                                        <div class="col">
+                                                            <td class="col align-self-center">
                                                                 Cantidad
                                                             </td>
                                                         </div>
@@ -44,20 +52,31 @@
                                                     <tr>
                                                         <div class="col">
                                                             <td class="col align-self-center">
-                                                                {{material.name}}
+                                                                {{material["name"]}}
                                                             </td>
                                                         </div>
                                                         <div class="col">
                                                             <td class="col align-self-center">
-                                                                <input type="number" name="cantidades[]">
+                                                                {{material['stock']}}
                                                             </td>
                                                         </div>
                                                         <div class="col">
                                                             <td class="col align-self-center">
-                                                                <input type="checkbox" id="{{material.name}}"
+                                                                {{material["producer"]}}
+                                                            </td>
+                                                        </div>
+                                                        <div class="col">
+                                                            <td class="col align-self-center">
+                                                                <input type="number" name="cantidad[]" value="">
+                                                            </td>
+                                                        </div>
+                                                        <div class=" col">
+                                                            <td class="col align-self-center">
+                                                                <input type="checkbox" id="{{material.id}}"
                                                                     name="materiales[]" value="{{material.id}}"
                                                                     data-on="Si" data-off="No" data-toggle="toggle"
                                                                     data-size="sm">
+
                                                             </td>
                                                         </div>
                                                     </tr>
@@ -76,11 +95,6 @@
                                 <button type="reset" class="btn btn-primary">Limpiar</button>
                             </div>
                         </div>
-                        {% for field, errors in form.errors.items() %}
-                        <div class="alert alert-error">
-                            {{ form[field].label }}: {{ ', '.join(errors) }}
-                        </div>
-                        {% endfor %}
                     </form>
                 </div>
             </div>
@@ -88,3 +102,13 @@
     </div>
 </div>
 {% endblock %}
+<script type="text/javascript">
+    // when page is ready
+    $(document).ready(function () {
+        // on form submit
+        $("#form").on('submit', function () {
+            // to each unchecked checkbox
+            $(this).find('input[type=checkbox]:not(:checked)').prop('checked', true).val(0);
+        })
+    })
+</script>

@@ -84,6 +84,12 @@ def create_app(test_config=None):
 
     ## Ruta de materiales
     app.add_url_rule(
+        "/coleccion/reservar_materiales",
+        "reservar_materiales",
+        coleccion.reservar_materiales,
+        methods=["POST"],
+    )
+    app.add_url_rule(
         "/coleccion/seleccionar_materiales",
         "seleccionar_materiales",
         coleccion.seleccionar_materiales,

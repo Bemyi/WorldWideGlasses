@@ -1,11 +1,13 @@
 from flask import redirect, render_template, request, url_for, flash, session
 from flask_login import current_user, login_required
 from app.form.coleccion.alta_coleccion import FormAltaColeccion
+from app.form.coleccion.seleccionar_materiales import FormSeleccionarMateriales
 from app.models.coleccion import Coleccion
 import requests
 import json
 
 from app.models.modelo import Modelo
+from app.models.material import Material
 
 
 @login_required
@@ -120,3 +122,51 @@ def nuevo():
         return render_template("coleccion/nuevo.html", form=form, modelos=modelos)
     flash("No tienes permiso para acceder a este sitio")
     return redirect(url_for("home"))
+
+
+@login_required
+def seleccionar_materiales():
+    if session["current_rol"] == "Creativa":
+        """Template Seleccionar materiales"""
+        materiales = Material.materiales()
+        return render_template(
+            "coleccion/seleccion_materiales.html", materiales=materiales
+        )
+    flash("No tienes permiso para acceder a este sitio")
+    return redirect(url_for("home"))
+
+
+@login_required
+def seleccion_materiales():
+    if session["current_rol"] == "Creativa":
+        """Template Seleccionar materiales"""
+        materiales = request.form.getlist("materiales[]")
+        print("AAAAAAAAAA")
+        requestSession = requests.Session()
+        URL = "http://127.0.0.1:8000/login"
+        body = {"username": "mario", "password": "123"}
+        response = requestSession.get(URL, data=body)
+        print(response)
+        flash("¡Los materiales fueron seleccionados con exito!")
+        return redirect(url_for("home"))
+    flash("Algo falló")
+    materiales = Material.materiales()
+    return render_template("coleccion/seleccion_materiales.html", materiales=materiales)
+
+
+# @login_required
+# def reservar_materiales():
+#     if session["current_rol"] == "Creativa":
+#         """Template Reservar materiales"""
+#         form = FormSeleccionarMateriales()
+#         materiales = request.form.getlist("materiales[]")
+#         print(materiales)
+#         cantidades = request.form.getlist("cantidades[]")
+#         print(cantidades)
+#         x = len(materiales)
+#         while x != 0:
+#             print(cantidades[x - 1])
+#             x = x - 1
+#         return redirect(url_for("home"))
+#     flash("No tienes permiso para acceder a este sitio")
+#     return redirect(url_for("home"))

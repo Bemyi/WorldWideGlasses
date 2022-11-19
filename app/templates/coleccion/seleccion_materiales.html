@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+{% block title %}Nueva colección{% endblock %}
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/select2.js')}}" type="text/javascript"></script>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Selección de materiales</div>
+                <div class="card-body">
+                    <form class="form" method="POST" action="{{ url_for('seleccion_materiales') }}">
+
+                        <div class="form-group">
+                            <div class="form-group row justify-content-center">
+                                <div class="col-md-10">
+
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <div class="col">
+                                                    <td class="col align-self-center">
+                                                        Nombre
+                                                    </td>
+                                                </div>
+                                                <div class="col">
+                                                    <td class="col align-self-center">
+                                                        Incluir
+                                                    </td>
+                                                </div>
+                                            </tr>
+                                            {% for material in materiales %}
+                                            <tr>
+                                                <div class="col">
+                                                    <td class="col align-self-center">
+                                                        {{material.name}}
+                                                    </td>
+                                                </div>
+                                                <div class="col">
+                                                    <td class="col align-self-center">
+                                                        <input type="checkbox" id="{{material.name}}"
+                                                            name="materiales[]" value="{{material.name}}" data-on="Si"
+                                                            data-off="No" data-toggle="toggle" data-size="sm">
+                                                    </td>
+                                                </div>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="form-group row justify-content-center">
+                                <div class="col-md-10">
+                                    <button type="submit" class="btn btn-primary">Cargar</button>
+                                    <button type="reset" class="btn btn-primary">Limpiar</button>
+                                </div>
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

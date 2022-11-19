@@ -14,6 +14,7 @@ from app.resources import modelo
 from flask_login import LoginManager, login_required
 from flask_session import Session
 
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -79,6 +80,19 @@ def create_app(test_config=None):
     app.add_url_rule("/coleccion/nueva", "nueva_coleccion", coleccion.nuevo)
     app.add_url_rule(
         "/coleccion/crear", "crear_coleccion", coleccion.crear, methods=["POST"]
+    )
+
+    ## Ruta de materiales
+    app.add_url_rule(
+        "/coleccion/seleccionar_materiales",
+        "seleccionar_materiales",
+        coleccion.seleccionar_materiales,
+    )
+    app.add_url_rule(
+        "/coleccion/seleccion_materiales",
+        "seleccion_materiales",
+        coleccion.seleccion_materiales,
+        methods=["POST"],
     )
 
     # Ruta de tipo

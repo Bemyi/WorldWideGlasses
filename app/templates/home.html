@@ -29,6 +29,12 @@
                                 <th class="col align-self-center">
                                     Modelos
                                 </th>
+                                <th class="col align-self-center">
+                                    Materiales
+                                </th>
+                                <th class="col align-self-center">
+                                    Próximamente
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -79,6 +85,55 @@
                                                     </table>
                                                 </div>
                                                 <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="col align-self-center">
+                                    <button type="button" class="btn-sm btn-primary" data-toggle="modal"
+                                        data-target="#materialessModal{{coleccion.id}}">
+                                        Ver
+                                    </button>
+
+                                    <div class="modal fade" id="materialessModal{{coleccion.id}}" tabindex="-1"
+                                        role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Materiales de la
+                                                        coleccion {{coleccion.name}}</h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table class="table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th scope="col">Nombre</th>
+                                                                <th scope="col">Cantidad</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>Ej1</td>
+                                                                <td>22</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Ej2</td>
+                                                                <td>22</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a class="btn btn-primary"
+                                                        href="{{ url_for('seleccionar_materiales') }}">Seleccionar
+                                                        materiales</a>
                                                     <button type="button" class="btn btn-secondary"
                                                         data-dismiss="modal">Close</button>
                                                 </div>

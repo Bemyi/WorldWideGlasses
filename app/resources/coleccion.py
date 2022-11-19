@@ -177,17 +177,40 @@ def seleccion_materiales():
     if session["current_rol"] == "Creativa":
         """Template Seleccionar materiales"""
         materiales = request.form.getlist("materiales[]")
-        print("AAAAAAAAAA")
-        requestSession = requests.Session()
-        URL = "http://127.0.0.1:8000/login"
-        body = {"username": "mario", "password": "123"}
-        response = requestSession.get(URL, data=body)
-        print(response)
+        token = login_api_reservas()
+        listado = listado_api_reservas(token, materiales)
         flash("¡Los materiales fueron seleccionados con exito!")
         return redirect(url_for("home"))
     flash("Algo falló")
     materiales = Material.materiales()
     return render_template("coleccion/seleccion_materiales.html", materiales=materiales)
+
+
+@login_required
+def login_api_reservas():
+    requestSession = requests.Session()
+    URL = "http://127.0.0.1:8000/login"
+    # cambiar está hardcodeado
+    body = {"username": "walter.bates", "password": "bpm"}
+    headers = {"Content-Type": "application/json"}
+    data = json.dumps(body)
+    response = requestSession.put(URL, data=data, headers=headers)
+    print(response)
+    token = response.json()["token"]
+    return token
+
+
+@login_required
+def listado_api_reservas(token, materiales):
+    requestSession = requests.Session()
+    URL = "http://127.0.0.1:8000/materiales"
+    body = {"names": materiales}
+    print(token)
+    headers = {"Content-Type": "application/json", "Authorization": "Bearer " + token}
+    data = json.dumps(body)
+    response = requestSession.put(URL, data=data, headers=headers)
+    listado = response.json()
+    return listado
 
 
 # @login_required

@@ -1,3 +1,4 @@
+import time
 from flask import redirect, render_template, request, url_for, flash, session, jsonify
 from flask_login import current_user, login_required
 from app.form.coleccion.alta_coleccion import FormAltaColeccion
@@ -18,24 +19,28 @@ def crear():
         if form.validate_on_submit():
             nombre = form.nombre.data
             fecha_lanzamiento = form.fecha_lanzamiento.data
-            modelos = request.form.getlist("modelos[]")
-            Coleccion.crear(nombre, fecha_lanzamiento, current_user.id, modelos)
+            modelos = request.form.getlist("modelos[]")           
             # Se instancia la tarea
             case_id = init_process()
             taskId = getUserTaskByName("Planificación de colección", case_id)
             # Se le asigna la tarea al usuario que creó la colección
             assign_task(taskId)
             # Se finaliza la tarea
-            # to-do
+            updateUserTask(taskId, "completed")
+            # Esperar 3 segundos para darle tiempo a bonita de completar la tarea y crear la otra
+            time.sleep(3)
+            # Se asigna la tarea 'Seleccionar fecha de lanzamiento'
+            taskId = getUserTaskByName("Seleccionar fecha de lanzamiento", case_id)
+            assign_task(taskId)
+            # Se finaliza la tarea
+            updateUserTask(taskId, "completed")            
+            # Si todo salió bien se crea la colección
+            Coleccion.crear(nombre, fecha_lanzamiento, current_user.id, modelos)
             # Cargar la variable en bonita
             coleccion_id = Coleccion.get_by_name(nombre).id
             set_bonita_variable(
                 case_id, "coleccion_id", coleccion_id, "java.lang.Integer"
             )
-            updateUserTask(taskId, "completed")
-            taskId = getUserTaskByName("Seleccionar fecha de lanzamiento", case_id)
-            assign_task(taskId)
-            updateUserTask(taskId, "completed")
             flash("¡La colección fue creada con exito!")
             return redirect(url_for("home"))
         modelos = Modelo.modelos()
@@ -70,10 +75,9 @@ def init_process():
     print(case_id)
     return case_id
 
-
 @login_required
-def assign_task(taskId):
-    """Se le asigna una tarea al usuario logeado"""
+def get_user_id():
+    """Se recupera el id del usuario logeado"""
     requestSession = requests.Session()
     URL = "http://localhost:8080/bonita/API/system/session/unusedId"
     headers = getBonitaHeaders()
@@ -81,7 +85,13 @@ def assign_task(taskId):
     print(response)
     print(response.json()["user_id"])
     user_id = response.json()["user_id"]
+    return user_id
 
+@login_required
+def assign_task(taskId):
+    """Se le asigna una tarea al usuario logeado"""
+    requestSession = requests.Session()
+    user_id = get_user_id()
     URL = "http://localhost:8080/bonita/API/bpm/humanTask/" + taskId
     headers = getBonitaHeaders()
     body = {"assigned_id": user_id}
@@ -133,7 +143,9 @@ def getUserTaskByName(taskName, caseId):
     headers = getBonitaHeaders()
     params = {"s": taskName, "caseId": caseId}
     response = requestSession.get(URL, headers=headers, params=params)
+    print("Response del get user task:")
     print(response)
+    print(response.json())
     print(response.json()[0]["id"])
     taskId = response.json()[0]["id"]
     return taskId
@@ -161,19 +173,19 @@ def nuevo():
 
 
 @login_required
-def seleccionar_materiales():
+def seleccionar_materiales(id_coleccion):
     if session["current_rol"] == "Creativa":
         """Template Seleccionar materiales"""
         materiales = Material.materiales()
         return render_template(
-            "coleccion/seleccion_materiales.html", materiales=materiales
+            "coleccion/seleccion_materiales.html", materiales=materiales, id_coleccion = id_coleccion
         )
     flash("No tienes permiso para acceder a este sitio")
     return redirect(url_for("home"))
 
 
 @login_required
-def seleccion_materiales():
+def seleccion_materiales(id_coleccion):
     materiales_todos = Material.materiales()
     if session["current_rol"] == "Creativa":
         """Template Seleccionar materiales"""
@@ -188,9 +200,9 @@ def seleccion_materiales():
             materiales_faltan = set(materiales) - mats_obtenidos
             flash("Faltan los siguientes materiales: " + str(materiales_faltan))
             return render_template(
-                "coleccion/seleccion_materiales.html", materiales=materiales_todos
+                "coleccion/seleccion_materiales.html", materiales=materiales_todos, id_coleccion=id_coleccion
             )
-        return render_template("coleccion/reservar_materiales.html", materiales=listado)
+        return render_template("coleccion/reservar_materiales.html", materiales=listado, id_coleccion=id_coleccion)
     flash("Algo falló")
     return render_template(
         "coleccion/seleccion_materiales.html", materiales=materiales_todos
@@ -224,39 +236,35 @@ def listado_api_reservas(token, materiales):
 
 
 @login_required
-def reservar_api_reservas(token, materiales):
+def reservar_api_reservas(token, materiales, id_coleccion):
     requestSession = requests.Session()
     URL = "http://127.0.0.1:8000/reservar_materiales"
     body = {
-        "materials": [
-            {"id": 1, "quantity": 1},
-            {"id": 2, "quantity": 1},
-            {"id": 3, "quantity": 1},
-        ],
-        "user_id": 1,
-        "colection_id": 1,
+        "materials": materiales,
+        "user_id": int(get_user_id()),
+        "colection_id": int(id_coleccion),
     }
     headers = {"Content-Type": "application/json", "Authorization": "Bearer " + token}
     data = json.dumps(body)
+    print(data)
     response = requestSession.put(URL, data=data, headers=headers)
-    listado = response.json()
+    listado = response
+    print(response)
     return listado
 
 
 @login_required
-def reservar_materiales():
+def reservar_materiales(id_coleccion):
     if session["current_rol"] == "Creativa":
         """Template Reservar materiales"""
         token = login_api_reservas()
-        materiales = request.form.getlist("materiales[]")
+        materiales = eval(request.form.getlist("materiales[]")[0]) #uso eval para volverlo dict
         cantidades = request.form.getlist("cantidad[]")
         listado = []
-        print(cantidades)
-        print(materiales)
         for i in range(len(materiales)):
-            listado.append({"id": materiales[i], "cantidad": cantidades[i]})
-        print(listado)
-        print(jsonify(listado))
-        reservar_api_reservas(token, materiales)
-    flash("No tienes permiso para acceder a este sitio")
+            if cantidades[i] != "0":
+                listado.append({"id": materiales[i]["id"], "quantity": int(cantidades[i])})
+        reservar_api_reservas(token, listado, id_coleccion)
+    else:
+        flash("No tienes permiso para acceder a este sitio")
     return redirect(url_for("home"))

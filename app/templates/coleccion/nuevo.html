@@ -6,6 +6,12 @@
 {% endblock %}
 {% block content %}
 <div class="container">
+    {% with messages = get_flashed_messages() %} {% if messages %}
+    <div class="alert alert-danger alert-dismissible">
+        {{ messages[0] }}
+        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %} {% endwith %}
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">

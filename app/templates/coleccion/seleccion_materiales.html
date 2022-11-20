@@ -17,7 +17,7 @@
             <div class="card">
                 <div class="card-header">Selección de materiales</div>
                 <div class="card-body">
-                    <form class="form" method="POST" action="{{ url_for('seleccion_materiales') }}">
+                    <form class="form" method="POST" action="{{ url_for('seleccion_materiales', id_coleccion=id_coleccion) }}">
 
                         <div class="form-group">
                             <div class="form-group row justify-content-center">

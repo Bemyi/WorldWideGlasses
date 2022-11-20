@@ -19,7 +19,7 @@ def crear():
         if form.validate_on_submit():
             nombre = form.nombre.data
             fecha_lanzamiento = form.fecha_lanzamiento.data
-            modelos = request.form.getlist("modelos[]")           
+            modelos = request.form.getlist("modelos[]")
             # Se instancia la tarea
             case_id = init_process()
             taskId = getUserTaskByName("Planificación de colección", case_id)
@@ -33,7 +33,7 @@ def crear():
             taskId = getUserTaskByName("Seleccionar fecha de lanzamiento", case_id)
             assign_task(taskId)
             # Se finaliza la tarea
-            updateUserTask(taskId, "completed")            
+            updateUserTask(taskId, "completed")
             # Si todo salió bien se crea la colección
             Coleccion.crear(nombre, fecha_lanzamiento, current_user.id, modelos)
             # Cargar la variable en bonita
@@ -75,6 +75,7 @@ def init_process():
     print(case_id)
     return case_id
 
+
 @login_required
 def get_user_id():
     """Se recupera el id del usuario logeado"""
@@ -86,6 +87,7 @@ def get_user_id():
     print(response.json()["user_id"])
     user_id = response.json()["user_id"]
     return user_id
+
 
 @login_required
 def assign_task(taskId):
@@ -178,7 +180,9 @@ def seleccionar_materiales(id_coleccion):
         """Template Seleccionar materiales"""
         materiales = Material.materiales()
         return render_template(
-            "coleccion/seleccion_materiales.html", materiales=materiales, id_coleccion = id_coleccion
+            "coleccion/seleccion_materiales.html",
+            materiales=materiales,
+            id_coleccion=id_coleccion,
         )
     flash("No tienes permiso para acceder a este sitio")
     return redirect(url_for("home"))
@@ -200,9 +204,15 @@ def seleccion_materiales(id_coleccion):
             materiales_faltan = set(materiales) - mats_obtenidos
             flash("Faltan los siguientes materiales: " + str(materiales_faltan))
             return render_template(
-                "coleccion/seleccion_materiales.html", materiales=materiales_todos, id_coleccion=id_coleccion
+                "coleccion/seleccion_materiales.html",
+                materiales=materiales_todos,
+                id_coleccion=id_coleccion,
             )
-        return render_template("coleccion/reservar_materiales.html", materiales=listado, id_coleccion=id_coleccion)
+        return render_template(
+            "coleccion/reservar_materiales.html",
+            materiales=listado,
+            id_coleccion=id_coleccion,
+        )
     flash("Algo falló")
     return render_template(
         "coleccion/seleccion_materiales.html", materiales=materiales_todos
@@ -248,8 +258,9 @@ def reservar_api_reservas(token, materiales, id_coleccion):
     data = json.dumps(body)
     print(data)
     response = requestSession.put(URL, data=data, headers=headers)
-    listado = response
+    listado = response.json()
     print(response)
+    print(listado)
     return listado
 
 
@@ -258,12 +269,16 @@ def reservar_materiales(id_coleccion):
     if session["current_rol"] == "Creativa":
         """Template Reservar materiales"""
         token = login_api_reservas()
-        materiales = eval(request.form.getlist("materiales[]")[0]) #uso eval para volverlo dict
+        materiales = eval(
+            request.form.getlist("materiales[]")[0]
+        )  # uso eval para volverlo dict
         cantidades = request.form.getlist("cantidad[]")
         listado = []
         for i in range(len(materiales)):
             if cantidades[i] != "0":
-                listado.append({"id": materiales[i]["id"], "quantity": int(cantidades[i])})
+                listado.append(
+                    {"id": materiales[i]["id"], "quantity": int(cantidades[i])}
+                )
         reservar_api_reservas(token, listado, id_coleccion)
     else:
         flash("No tienes permiso para acceder a este sitio")

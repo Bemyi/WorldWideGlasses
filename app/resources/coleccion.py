@@ -1,3 +1,4 @@
+from datetime import timedelta
 import time
 from flask import redirect, render_template, request, url_for, flash, session, jsonify
 from flask_login import current_user, login_required
@@ -22,12 +23,12 @@ def crear():
             modelos = request.form.getlist("modelos[]")
             # Se instancia la tarea
             case_id = init_process()
+            
             taskId = getUserTaskByName("Planificación de colección", case_id)
             # Se le asigna la tarea al usuario que creó la colección
             assign_task(taskId)
             # Se finaliza la tarea
             updateUserTask(taskId, "completed")
-            # Esperar 3 segundos para darle tiempo a bonita de completar la tarea y crear la otra
             time.sleep(3)
             # Se asigna la tarea 'Seleccionar fecha de lanzamiento'
             taskId = getUserTaskByName("Seleccionar fecha de lanzamiento", case_id)
@@ -35,11 +36,16 @@ def crear():
             # Se finaliza la tarea
             updateUserTask(taskId, "completed")
             # Si todo salió bien se crea la colección
-            Coleccion.crear(nombre, fecha_lanzamiento, current_user.id, modelos)
-            # Cargar la variable en bonita
-            coleccion_id = Coleccion.get_by_name(nombre).id
+            #resto un mes para setear fecha entrega y mando vacio para los modelos
+            Coleccion.crear(case_id, nombre, fecha_lanzamiento, fecha_lanzamiento - timedelta(30), current_user.id, "",modelos) 
+            # Cargar las variables en bonita
+            coleccion = Coleccion.get_by_name(nombre)
+            
             set_bonita_variable(
-                case_id, "coleccion_id", coleccion_id, "java.lang.Integer"
+                case_id, "materiales_disponibles", "false", "java.lang.Boolean"
+            )
+            set_bonita_variable(
+                case_id, "coleccion_id", coleccion.id, "java.lang.Integer"
             )
             flash("¡La colección fue creada con exito!")
             return redirect(url_for("home"))
@@ -48,7 +54,6 @@ def crear():
     flash("No tienes permiso para acceder a este sitio")
     return redirect(url_for("home"))
 
-
 @login_required
 def init_process():
     # se le pega a la API y se recupera el id del proceso
@@ -56,24 +61,27 @@ def init_process():
     URL = "http://localhost:8080/bonita/API/bpm/process?s=Creación de colección"
     headers = getBonitaHeaders()
     response = requestSession.get(URL, headers=headers)
-    processId = response.json()[0]["id"]
-
     print("Response del get id del proceso:")
     print(response)
-    print("Process ID: " + response.json()[0]["id"])
+    if response.status_code == 200:
+        processId = response.json()[0]["id"] 
+        print("Process ID: " + response.json()[0]["id"])
 
-    # se instancia el proceso con su id, creando una tarea
-    URL = "http://localhost:8080/bonita/API/bpm/process/" + processId + "/instantiation"
-    headers = getBonitaHeaders()
-    response = requestSession.post(URL, headers=headers)
+        # se instancia el proceso con su id, creando una tarea
+        URL = "http://localhost:8080/bonita/API/bpm/process/" + processId + "/instantiation"
+        headers = getBonitaHeaders()
+        response = requestSession.post(URL, headers=headers)
 
-    print("Response al instanciar proceso:")
-    print(response)
-    print(response.json())
-    case_id = response.json()["caseId"]
-    print("Case ID:")
-    print(case_id)
-    return case_id
+        print("Response al instanciar proceso:")
+        print(response)
+        print(response.json())
+        case_id = response.json()["caseId"]
+        print("Case ID:")
+        print(case_id)
+        return case_id
+    else:
+        print("Entro al else")
+        return redirect(url_for("logout")) #esto no anda!!!
 
 
 @login_required
@@ -197,11 +205,11 @@ def seleccion_materiales(id_coleccion):
         token = login_api_reservas()
         listado = listado_api_reservas(token, materiales)
         # filtramos materiales obtenidos
-        mats_obtenidos = set()
-        for e in listado:
-            mats_obtenidos.add(e["name"])
-        if not (set(materiales) == mats_obtenidos):
-            materiales_faltan = set(materiales) - mats_obtenidos
+        mats_obtenidos = ([material['name'] for material in listado])
+        # filtramos stocks para utilizarlos mas adelante
+        stocks = ([material['stock'] for material in listado])
+        if not (set(materiales) == set(mats_obtenidos)):
+            materiales_faltan = [i for i in materiales if i not in mats_obtenidos]
             flash("Faltan los siguientes materiales: " + str(materiales_faltan))
             return render_template(
                 "coleccion/seleccion_materiales.html",
@@ -209,9 +217,11 @@ def seleccion_materiales(id_coleccion):
                 id_coleccion=id_coleccion,
             )
         return render_template(
-            "coleccion/reservar_materiales.html",
+            "coleccion/guardar_materiales.html",
             materiales=listado,
+            stocks = stocks,
             id_coleccion=id_coleccion,
+            fecha_entrega=Coleccion.get_by_id(id_coleccion).fecha_entrega
         )
     flash("Algo falló")
     return render_template(
@@ -223,8 +233,7 @@ def seleccion_materiales(id_coleccion):
 def login_api_reservas():
     requestSession = requests.Session()
     URL = "http://127.0.0.1:8000/login"
-    # cambiar está hardcodeado
-    body = {"username": "walter.bates", "password": "bpm"}
+    body = {"username": current_user.username, "password": current_user.password}
     headers = {"Content-Type": "application/json"}
     data = json.dumps(body)
     response = requestSession.put(URL, data=data, headers=headers)
@@ -265,21 +274,80 @@ def reservar_api_reservas(token, materiales, id_coleccion):
 
 
 @login_required
-def reservar_materiales(id_coleccion):
+def guardar_materiales(id_coleccion):
     if session["current_rol"] == "Creativa":
         """Template Reservar materiales"""
         token = login_api_reservas()
         materiales = eval(
             request.form.getlist("materiales[]")[0]
         )  # uso eval para volverlo dict
+        stocks = eval(
+            request.form.getlist("stocks[]")[0]
+        )  # uso eval para volverlo dict
         cantidades = request.form.getlist("cantidad[]")
+        print(stocks)
         listado = []
         for i in range(len(materiales)):
             if cantidades[i] != "0":
-                listado.append(
-                    {"id": materiales[i]["id"], "quantity": int(cantidades[i])}
-                )
-        reservar_api_reservas(token, listado, id_coleccion)
+                if int(cantidades[i]) > stocks[i]:
+                    flash("Stock insuficiente")
+                    return render_template(
+                        "coleccion/guardar_materiales.html",
+                        materiales=materiales,
+                        stocks = stocks,
+                        id_coleccion=id_coleccion,
+                        fecha_entrega=Coleccion.get_by_id(id_coleccion).fecha_entrega
+                    )
+                else:
+                    listado.append(
+                        {"id": materiales[i]["id"], "quantity": int(cantidades[i])}
+                    )
+        print(listado)
+        Coleccion.get_by_id(id_coleccion).save_materials(str(listado))
+        set_bonita_variable(
+            Coleccion.get_by_id(id_coleccion).case_id, "materiales_fecha", "true", "java.lang.Boolean"
+        )
+        time.sleep(3)
+        taskId = getUserTaskByName("Consulta de materiales a la API", Coleccion.get_by_id(id_coleccion).case_id)
+        assign_task(taskId)
+        # Se finaliza la tarea
+        updateUserTask(taskId, "completed")
+        time.sleep(3)
     else:
         flash("No tienes permiso para acceder a este sitio")
     return redirect(url_for("home"))
+
+@login_required
+def reprogramar(id_coleccion):
+    time.sleep(3)
+    taskId = getUserTaskByName("Consulta de materiales a la API", Coleccion.get_by_id(id_coleccion).case_id)
+    assign_task(taskId)
+    # Se finaliza la tarea
+    updateUserTask(taskId, "completed")
+    taskId = getUserTaskByName("Planificación de distribución", Coleccion.get_by_id(id_coleccion).case_id)
+    assign_task(taskId)
+    # Se finaliza la tarea
+    updateUserTask(taskId, "completed")
+    time.sleep(3)
+    return render_template(
+        "coleccion/reprogramar.html",
+        id_coleccion=id_coleccion,
+    )
+
+@login_required
+def modificar_fecha(id_coleccion):
+    nueva_fecha = request.form.get("fecha_lanzamiento")
+    coleccion = Coleccion.get_by_id(id_coleccion)
+    print(nueva_fecha)
+    coleccion.modificar_lanzamiento(nueva_fecha)
+    taskId = getUserTaskByName("Seleccionar fecha de lanzamiento", coleccion.case_id)
+    assign_task(taskId)
+    # Se finaliza la tarea
+    updateUserTask(taskId, "completed")
+    #calcular_fecha_entrega(coleccion)
+    time.sleep(3)
+    return redirect(url_for("home"))
+
+#@login_required
+#def calcular_fecha_entrega(coleccion):
+    #coleccion.

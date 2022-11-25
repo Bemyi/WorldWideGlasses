@@ -1,8 +1,9 @@
 import os
 from os import environ
-from flask import Flask, render_template
+from flask import Flask, render_template, session
 from app.db import db
 from config import config
+import requests
 
 # Resources
 from app.resources import auth
@@ -81,12 +82,19 @@ def create_app(test_config=None):
     app.add_url_rule(
         "/coleccion/crear", "crear_coleccion", coleccion.crear, methods=["POST"]
     )
+    app.add_url_rule(
+        "/coleccion/<id_coleccion>/reprogramar", "reprogramar_coleccion", coleccion.reprogramar
+    )
+    app.add_url_rule(
+        "/coleccion/<id_coleccion>/modificar_fecha", "modificar_fecha_coleccion", coleccion.modificar_fecha, methods=["POST"]
+    )
+    
 
     ## Ruta de materiales
     app.add_url_rule(
-        "/coleccion/<id_coleccion>/reservar_materiales",
-        "reservar_materiales",
-        coleccion.reservar_materiales,
+        "/coleccion/<id_coleccion>/guardar_materiales",
+        "guardar_materiales",
+        coleccion.guardar_materiales,
         methods=["POST"],
     )
     app.add_url_rule(

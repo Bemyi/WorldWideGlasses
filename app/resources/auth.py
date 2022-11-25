@@ -3,12 +3,7 @@ from flask import render_template, redirect, session, url_for, request, flash
 from flask_login import login_user, logout_user, login_required
 from app.models.coleccion import Coleccion
 from app.models.usuario import Usuario
-from werkzeug.security import check_password_hash
 import requests
-
-# Password de Walter
-from werkzeug.security import generate_password_hash
-
 
 def login():
     """Template de login. Si el usuario esta autenticado
@@ -27,7 +22,7 @@ def login_post():
 
     # Chequeamos si existe el usuario
     # Chequeamos si la contraseña corresponde con la hasheada
-    if not user or not check_password_hash(user.password, password):
+    if not user or user.password != password:
         flash("El usuario y/o la contraseña son incorrectos.")
         return redirect(
             url_for("login")

@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block title %}Nueva colección{% endblock %}
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/select2.js')}}" type="text/javascript"></script>
+{% endblock %}
+{% block content %}
+<div class="container">
+    {% with messages = get_flashed_messages() %} {% if messages %}
+    <div class="alert alert-danger alert-dismissible">
+        {{ messages[0] }}
+        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %} {% endwith %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Reprogramar colección</div>
+                <div class="card-body">
+                    <form class="form" method="POST" action="{{ url_for('modificar_fecha_coleccion', id_coleccion=id_coleccion) }}">
+                        <div class="form-group">
+                            <div class="form-group row justify-content-center">
+                                <label for="fecha_lanzamiento" class="col-md-10 col-form-label text-md-left">Nueva fecha de
+                                    Lanzamiento</label>
+                                <div class="col-md-10">
+                                    <input type="date" class="form-control" id="fecha_lanzamiento"
+                                        name="fecha_lanzamiento" placeholder=""
+                                        value="" min="2022-10-06" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row justify-content-center">
+                            <div class="col-md-10">
+                                <button type="submit" class="btn btn-primary">Cargar</button>
+                                <button type="reset" class="btn btn-primary">Limpiar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,6 +4,7 @@ from flask import redirect, render_template, request, url_for, flash, session, j
 from flask_login import current_user, login_required
 from app.form.coleccion.alta_coleccion import FormAltaColeccion
 from app.form.coleccion.seleccionar_materiales import FormSeleccionarMateriales
+from app.form.coleccion.reprogramar_coleccion import FormReprogramarColeccion
 from app.models.coleccion import Coleccion
 import requests
 import json
@@ -45,7 +46,7 @@ def crear():
                 nombre,
                 fecha_lanzamiento,
                 fecha_lanzamiento - timedelta(30),
-                [1,2,3],
+                [1, 2, 3],
                 "",
                 modelos,
             )
@@ -94,7 +95,7 @@ def crear():
                 str(coleccion.fecha_lanzamiento),
                 str(coleccion.fecha_entrega),
                 modelos,
-                usuarios
+                usuarios,
             ]
             index = len(sheet.get_all_values()) + 1
             sheet.insert_row(row, index)
@@ -271,7 +272,9 @@ def seleccion_materiales(id_coleccion):
         stocks = [material["stock"] for material in listado]
         if not (set(materiales) == set(mats_obtenidos)):
             materiales_faltan = [i for i in materiales if i not in mats_obtenidos]
-            flash("Faltan los siguientes materiales: " + str(materiales_faltan), "error")
+            flash(
+                "Faltan los siguientes materiales: " + str(materiales_faltan), "error"
+            )
             return render_template(
                 "coleccion/seleccion_materiales.html",
                 materiales=materiales_todos,
@@ -387,44 +390,55 @@ def guardar_materiales(id_coleccion):
 @login_required
 def reprogramar(id_coleccion):
     if session["current_rol"] == "Creativa":
-        time.sleep(5)
-        taskId = getUserTaskByName(
-            "Consulta de materiales a la API", Coleccion.get_by_id(id_coleccion).case_id
-        )
-        assign_task(taskId)
-        # Se finaliza la tarea
-        updateUserTask(taskId, "completed")
-        taskId = getUserTaskByName(
-            "Planificación de distribución", Coleccion.get_by_id(id_coleccion).case_id
-        )
-        assign_task(taskId)
-        # Se finaliza la tarea
-        updateUserTask(taskId, "completed")
-        time.sleep(5)
+        form = FormReprogramarColeccion()
+        coleccion = Coleccion.get_by_id(id_coleccion)
+        form.fecha_lanzamiento.data = coleccion.fecha_lanzamiento
         return render_template(
-            "coleccion/reprogramar.html",
-            id_coleccion=id_coleccion,
+            "coleccion/reprogramar.html", coleccion=coleccion, form=form
         )
     else:
-       flash("No tienes permiso para acceder a este sitio", "error")
+        flash("No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))
 
 
 @login_required
 def modificar_fecha(id_coleccion):
     if session["current_rol"] == "Creativa":
-        nueva_fecha = request.form.get("fecha_lanzamiento")
+        form = FormReprogramarColeccion()
         coleccion = Coleccion.get_by_id(id_coleccion)
-        print(nueva_fecha)
-        coleccion.modificar_lanzamiento(nueva_fecha)
-        taskId = getUserTaskByName("Seleccionar fecha de lanzamiento", coleccion.case_id)
-        assign_task(taskId)
-        # Se finaliza la tarea
-        updateUserTask(taskId, "completed")
-        # calcular_fecha_entrega(coleccion)
-        time.sleep(5)
-        coleccion.modificar_entrega(coleccion.fecha_lanzamiento - timedelta(30))
-        return redirect(url_for("home"))
+        if form.validate_on_submit():
+            time.sleep(5)
+            taskId = getUserTaskByName(
+                "Consulta de materiales a la API",
+                Coleccion.get_by_id(id_coleccion).case_id,
+            )
+            assign_task(taskId)
+            # Se finaliza la tarea
+            updateUserTask(taskId, "completed")
+            taskId = getUserTaskByName(
+                "Planificación de distribución",
+                Coleccion.get_by_id(id_coleccion).case_id,
+            )
+            assign_task(taskId)
+            # Se finaliza la tarea
+            updateUserTask(taskId, "completed")
+            time.sleep(5)
+            nueva_fecha = form.fecha_lanzamiento.data
+            coleccion.modificar_lanzamiento(nueva_fecha)
+            taskId = getUserTaskByName(
+                "Seleccionar fecha de lanzamiento", coleccion.case_id
+            )
+            assign_task(taskId)
+            # Se finaliza la tarea
+            updateUserTask(taskId, "completed")
+            # calcular_fecha_entrega(coleccion)
+            time.sleep(5)
+            coleccion.modificar_entrega(coleccion.fecha_lanzamiento - timedelta(30))
+            return redirect(url_for("home"))
+        else:
+            return render_template(
+                "coleccion/reprogramar.html", coleccion=coleccion, form=form
+            )
     else:
-       flash("danger_msg", "No tienes permiso para acceder a este sitio", "error")
+        flash("danger_msg", "No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))

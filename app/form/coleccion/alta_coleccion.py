@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, DateField, SelectField
 from wtforms.validators import DataRequired, Regexp, Length, ValidationError
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from app.models.coleccion import Coleccion
 
 
@@ -25,14 +25,14 @@ class FormAltaColeccion(FlaskForm):
 
     fecha_lanzamiento = DateField(
         "fecha_lanzamiento",
-        default=date.today(),
+        default=date.today() + timedelta(30),
         validators=[DataRequired()],
     )
 
     enviar = SubmitField("Guardar")
 
     def validate_fecha_lanzamiento(self, f):
-        if f.data <= date.today():
+        if f.data <= date.today() + timedelta(30):
             raise ValidationError(
-                "La fecha de lanzamiento debe ser mayor a la fecha actual"
+                "La fecha de lanzamiento debe ser al menos 30 días posterior a la fecha actual"
             )

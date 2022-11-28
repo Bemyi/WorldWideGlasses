@@ -1,3 +1,4 @@
+import time
 from flask import redirect, render_template, url_for, flash, session, request
 from flask_login import login_required, current_user
 import requests
@@ -10,10 +11,24 @@ from app.resources import coleccion
 def reservar_espacio(id_coleccion):
     """Se reserva un espacio"""
     # cambiar a operaciones
-    if session["current_rol"] == "Creativa":
+    if session["current_rol"] == "Operaciones":
+        case_id = Coleccion.get_by_id(id_coleccion).case_id
+        time.sleep(5)
         taskId = coleccion.getUserTaskByName(
             "Consultar espacio de fabricación",
-            Coleccion.get_by_id(id_coleccion).case_id,
+            case_id,
+        )
+        coleccion.set_bonita_variable(
+            case_id, "plazos_fabricacion", "true", "java.lang.Boolean"
+        )
+        coleccion.assign_task(taskId)
+        # Se finaliza la tarea
+        coleccion.updateUserTask(taskId, "completed")
+
+        time.sleep(5)
+        taskId = coleccion.getUserTaskByName(
+            "Reservar espacio de fabricación",
+            case_id,
         )
         coleccion.assign_task(taskId)
         token = login_api_espacios()
@@ -21,9 +36,9 @@ def reservar_espacio(id_coleccion):
         reservar_api_espacios(token, space_id, id_coleccion)
         # Se finaliza la tarea
         coleccion.updateUserTask(taskId, "completed")
-        flash("Espacio de fabricación reservado!")
+        flash("Espacio de fabricación reservado!", "success")
         return redirect(url_for("home"))
-    flash("No tienes permiso para acceder a este sitio")
+    flash("No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))
 
 
@@ -75,23 +90,13 @@ def reservar_api_espacios(token, space_id, id_coleccion):
 def seleccionar_espacio(id_coleccion):
     """Template para seleccionar espacio espacio"""
     # cambiar a operaciones
-    if session["current_rol"] == "Creativa":
+    if session["current_rol"] == "Operaciones":
         token = login_api_espacios()
         days = int(request.form.get("dias"))
         end_date = str((Coleccion.get_by_id(id_coleccion).fecha_entrega).date())
         espacios = listado_api_espacios(token, days, end_date)
         case_id = Coleccion.get_by_id(id_coleccion).case_id
         if espacios:
-            taskId = coleccion.getUserTaskByName(
-                "Consultar espacio de fabricación",
-                case_id,
-            )
-            coleccion.set_bonita_variable(
-                case_id, "plazos_fabricacion", "true", "java.lang.Boolean"
-            )
-            coleccion.assign_task(taskId)
-            # Se finaliza la tarea
-            coleccion.updateUserTask(taskId, "completed")
             return render_template(
                 "coleccion/seleccion_espacio.html",
                 espacios=espacios,
@@ -103,5 +108,5 @@ def seleccionar_espacio(id_coleccion):
             )
             flash("No hay espacios disponibles")
             return redirect(url_for("home"))
-    flash("No tienes permiso para acceder a este sitio")
+    flash("No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))

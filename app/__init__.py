@@ -10,6 +10,7 @@ from app.resources import auth
 from app.resources import coleccion
 from app.resources import tipo
 from app.resources import modelo
+from app.resources import espacios_fabricacion
 
 # LoginManager
 from flask_login import LoginManager, login_required
@@ -83,14 +84,18 @@ def create_app(test_config=None):
         "/coleccion/crear", "crear_coleccion", coleccion.crear, methods=["POST"]
     )
     app.add_url_rule(
-        "/coleccion/<id_coleccion>/reprogramar", "reprogramar_coleccion", coleccion.reprogramar
+        "/coleccion/<id_coleccion>/reprogramar",
+        "reprogramar_coleccion",
+        coleccion.reprogramar,
     )
     app.add_url_rule(
-        "/coleccion/<id_coleccion>/modificar_fecha", "modificar_fecha_coleccion", coleccion.modificar_fecha, methods=["POST"]
+        "/coleccion/<id_coleccion>/modificar_fecha",
+        "modificar_fecha_coleccion",
+        coleccion.modificar_fecha,
+        methods=["POST"],
     )
-    
 
-    ## Ruta de materiales
+    # Ruta de materiales
     app.add_url_rule(
         "/coleccion/<id_coleccion>/guardar_materiales",
         "guardar_materiales",
@@ -101,12 +106,26 @@ def create_app(test_config=None):
         "/coleccion/<id_coleccion>/seleccionar_materiales",
         "seleccionar_materiales",
         coleccion.seleccionar_materiales,
-        methods=['GET', 'POST']
+        methods=["GET", "POST"],
     )
     app.add_url_rule(
         "/coleccion/<id_coleccion>/seleccion_materiales",
         "seleccion_materiales",
         coleccion.seleccion_materiales,
+        methods=["POST"],
+    )
+
+    # Ruta de espacios de fabricacion
+    app.add_url_rule(
+        "/coleccion/<id_coleccion>/seleccionar_espacio",
+        "seleccionar_espacio",
+        espacios_fabricacion.seleccionar_espacio,
+        methods=["GET", "POST"],
+    )
+    app.add_url_rule(
+        "/coleccion/<id_coleccion>/reservar_espacio",
+        "reservar_espacio",
+        espacios_fabricacion.reservar_espacio,
         methods=["POST"],
     )
 

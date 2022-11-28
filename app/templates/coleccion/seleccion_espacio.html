@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block title %}Nueva colección{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="container">
+    {% with messages = get_flashed_messages() %} {% if messages %}
+    <div class="alert alert-danger alert-dismissible">
+        {{ messages[0] }}
+        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %} {% endwith %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Selección de materiales</div>
+                <div class="card-body">
+                    <form class="form" method="POST"
+                        action="{{ url_for('reservar_espacio', id_coleccion=id_coleccion) }}">
+
+                        <div class="form-group">
+                            <div class="form-group row justify-content-center">
+                                <div class="col-md-10">
+
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <div class="col">
+                                                    <td class="col align-self-center">
+                                                        Nombre
+                                                    </td>
+                                                </div>
+                                                <div class="col">
+                                                    <td class="col align-self-center">
+                                                        Incluir
+                                                    </td>
+                                                </div>
+                                            </tr>
+                                            {% for espacio in espacios %}
+                                            <tr>
+                                                <div class="col">
+                                                    <td class="col align-self-center">
+                                                        {{espacio.name}}
+                                                    </td>
+                                                </div>
+                                                <div class="col">
+                                                    <td class="col align-self-center">
+                                                        <input type="radio" id="{{espacio.id}}" name="espacio"
+                                                            value="{{espacio.id}}" data-on="Si" data-off="No"
+                                                            data-toggle="toggle" data-size="sm">
+                                                    </td>
+                                                </div>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="form-group row justify-content-center">
+                                <div class="col-md-10">
+                                    <button type="submit" class="btn btn-primary">Cargar</button>
+                                    <button type="reset" class="btn btn-primary">Limpiar</button>
+                                </div>
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

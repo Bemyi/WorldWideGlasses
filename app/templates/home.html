@@ -98,13 +98,54 @@
                                         </div>
                                     </div>
                                 </td>
-                                {% if "Consulta de materiales a la API" in coleccion.get_ready_tasks(coleccion.case_id) %}
+                                <button type="button" class="btn-sm btn-primary" data-toggle="modal"
+                                    data-target="#espacioModal{{coleccion.id}}">
+                                    Seleccionar espacio de fabricación
+                                </button>
+                                <div class="modal fade" id="espacioModal{{coleccion.id}}" tabindex="-1" role="dialog"
+                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">Cantidad de días para la
+                                                    fabricación de la colección {{coleccion.name}}</h5>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form class="form" method="POST"
+                                                    action="{{ url_for('seleccionar_espacio', id_coleccion=coleccion.id) }}">
+                                                    <label for="fname">Días</label>
+                                                    <input type="number" name="dias" value="1">
+                                                    <div class="form-group row justify-content-center">
+                                                        <div class="col-md-10">
+                                                            <button type="submit"
+                                                                class="btn btn-primary">Cargar</button>
+                                                            <button type="reset"
+                                                                class="btn btn-primary">Limpiar</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if "Consulta de materiales a la API" in coleccion.get_ready_tasks(coleccion.case_id)
+                                %}
                                 <td class="col align-self-center">
-                                    <a class="btn btn-primary" href="{{ url_for('seleccionar_materiales', id_coleccion=coleccion.id) }}">Seleccionar materiales</a>
+                                    <a class="btn btn-primary"
+                                        href="{{ url_for('seleccionar_materiales', id_coleccion=coleccion.id) }}">Seleccionar
+                                        materiales</a>
                                 </td>
-                                {% elif "Consultar espacio de fabricación" in coleccion.get_ready_tasks(coleccion.case_id) %}
+                                {% elif "Consultar espacio de fabricación" in
+                                coleccion.get_ready_tasks(coleccion.case_id) %}
                                 <td class="col align-self-center">
-                                    <a class="btn btn-primary" href="">Seleccionar espacio de fabricación</a>
+                                    <a class="btn btn-primary"
+                                        href="{{ url_for('seleccionar_espacio', id_coleccion=coleccion.id) }}">Seleccionar
+                                        espacio de fabricación</a>
+
                                 </td>
                                 {% else %}
                                 <td> Nada que hacer...</td>

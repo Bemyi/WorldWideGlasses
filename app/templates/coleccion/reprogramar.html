@@ -17,15 +17,16 @@
             <div class="card">
                 <div class="card-header">Reprogramar colección</div>
                 <div class="card-body">
-                    <form class="form" method="POST" action="{{ url_for('modificar_fecha_coleccion', id_coleccion=id_coleccion) }}">
+                    <form class="form" method="POST"
+                        action="{{ url_for('modificar_fecha_coleccion', id_coleccion=id_coleccion) }}">
                         <div class="form-group">
                             <div class="form-group row justify-content-center">
-                                <label for="fecha_lanzamiento" class="col-md-10 col-form-label text-md-left">Nueva fecha de
+                                <label for="fecha_lanzamiento" class="col-md-10 col-form-label text-md-left">Nueva fecha
+                                    de
                                     Lanzamiento</label>
                                 <div class="col-md-10">
                                     <input type="date" class="form-control" id="fecha_lanzamiento"
-                                        name="fecha_lanzamiento" placeholder=""
-                                        value="" min="2022-10-06" required>
+                                        name="fecha_lanzamiento" placeholder="" value="" required>
                                 </div>
                             </div>
                         </div>

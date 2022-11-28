@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired, Regexp, Length
+from wtforms.validators import DataRequired, Regexp, Length, ValidationError
+from app.models.tipo import Tipo
 
 
 class FormAltaTipo(FlaskForm):
@@ -15,4 +16,10 @@ class FormAltaTipo(FlaskForm):
         ],
         default="",
     )
+
+    def validate_nombre(form, tipoV):
+        tipo = Tipo.get_by_name(tipoV.data)
+        if tipo != None:
+            raise ValidationError("Ya existe ese nombre para otro tipo")
+
     enviar = SubmitField("Guardar")

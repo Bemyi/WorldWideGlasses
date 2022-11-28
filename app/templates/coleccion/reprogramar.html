@@ -6,26 +6,40 @@
 {% endblock %}
 {% block content %}
 <div class="container">
-    {% with messages = get_flashed_messages() %} {% if messages %}
-    <div class="alert alert-danger alert-dismissible">
-        {{ messages[0] }}
-        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category == "success" %}
+    <div class="alert alert-success alert-dismissible">
+        {{ message }} <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
     </div>
-    {% endif %} {% endwith %}
+    {% else %}
+    <div class="alert alert-danger alert-dismissible">
+        {{ message }} <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">Reprogramar colección</div>
                 <div class="card-body">
-                    <form class="form" method="POST" action="{{ url_for('modificar_fecha_coleccion', id_coleccion=id_coleccion) }}">
+                    <form class="form" method="POST"
+                        action="{{ url_for('modificar_fecha_coleccion', id_coleccion=coleccion.id) }}">
+                        {{ form.hidden_tag() }}
                         <div class="form-group">
                             <div class="form-group row justify-content-center">
-                                <label for="fecha_lanzamiento" class="col-md-10 col-form-label text-md-left">Nueva fecha de
-                                    Lanzamiento</label>
+                                <label for="fecha_lanzamiento" class="col-md-10 col-form-label text-md-left">Nueva fecha
+                                    de lanzamiento</label>
                                 <div class="col-md-10">
                                     <input type="date" class="form-control" id="fecha_lanzamiento"
-                                        name="fecha_lanzamiento" placeholder=""
-                                        value="" min="2022-10-06" required>
+                                        name="fecha_lanzamiento" placeholder="" value={{coleccion.fecha_lanzamiento}}
+                                        required>
+                                    {% for error in form.fecha_lanzamiento.errors %}
+                                    <span style="color:red;">{{ error }}</span>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>

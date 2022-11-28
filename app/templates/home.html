@@ -5,17 +5,25 @@
 {% endblock %}
 {% block content %}
 <div class="container">
-    {% with messages = get_flashed_messages() %} {% if messages %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category == "success" %}
     <div class="alert alert-success alert-dismissible">
-        {{ messages[0] }}
-        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+        {{ message }} <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
     </div>
-    {% endif %} {% endwith %}
+    {% else %}
+    <div class="alert alert-danger alert-dismissible">
+        {{ message }} <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
     <div class="row justify-content-center">
-        {% if session["current_rol"] == "Creativa"%}
         <div class="col-md-10">
             <div class="card align-self-center">
-                <div class="card-header">Mis Colecciones</div>
+                <div class="card-header">Colecciones</div>
                 <div class="card-body">
                     <table class="table">
                         <thead class="thead-light">
@@ -36,7 +44,7 @@
                                     Reservas
                                 </th>
                                 <th class="col align-self-center">
-                                    Próximamente
+                                    Reprogramación
                                 </th>
                             </tr>
                         </thead>
@@ -147,8 +155,34 @@
                                         espacio de fabricación</a>
 
                                 </td>
+                                {% if session["current_rol"] == "Operaciones" %}
+                                {% if "Consulta de materiales a la API" in coleccion.get_ready_tasks(coleccion.case_id)
+                                %}
+                                <td class="col align-self-center">
+                                    <a class="btn btn-primary"
+                                        href="{{ url_for('seleccionar_materiales', id_coleccion=coleccion.id) }}">Seleccionar
+                                        materiales</a>
+                                </td>
+                                {% elif "Consultar espacio de fabricación" in
+                                coleccion.get_ready_tasks(coleccion.case_id) %}
+                                <td class="col align-self-center">
+                                    <a class="btn btn-primary" href="">Seleccionar espacio de fabricación</a>
+                                </td>
                                 {% else %}
                                 <td> Nada que hacer...</td>
+                                {% endif %}
+                                {% else %}
+                                <td>
+                                    No tienes permisos para manejar las reservas.
+                                </td>
+                                {% endif %}
+
+                                {% if session["current_rol"] == "Creativa" %}
+                                <td> <a class="btn btn-danger"
+                                        href="{{ url_for('reprogramar_coleccion', id_coleccion=coleccion.id) }}">Reprogramar
+                                        Colección</a> </td>
+                                {% else %}
+                                <td> No tienes permisos para reprogramar. </td>
                                 {% endif %}
                             </tr>
                             {% endfor %}
@@ -161,9 +195,6 @@
         <div class="col-md-10 justify-content-center">
             <a class="btn btn-primary" href="{{ url_for('nueva_coleccion') }}" role="button">Crear colección</a>
         </div>
-        {% else %}
-        <h2>proximamente...</h2>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

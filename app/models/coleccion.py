@@ -5,6 +5,7 @@ from flask import session
 from flask_login import UserMixin
 
 from app.models.modelo import Modelo
+from app.models.usuario import Usuario
 
 coleccion_tiene_modelo = db.Table(
     "coleccion_tiene_modelo",
@@ -17,6 +18,17 @@ coleccion_tiene_modelo = db.Table(
     ),
 )
 
+coleccion_tiene_usuario = db.Table(
+    "coleccion_tiene_usuario",
+    db.Column("coleccion_id", db.Integer, db.ForeignKey("coleccion.id"), primary_key=True),
+    db.Column(
+        "usuario_id",
+        db.Integer,
+        db.ForeignKey("usuario.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+)
+
 class Coleccion(db.Model, UserMixin):
     __tablename__ = "coleccion"
 
@@ -25,7 +37,6 @@ class Coleccion(db.Model, UserMixin):
     name = db.Column(db.String(255), unique=True)
     fecha_lanzamiento = db.Column(db.DateTime)
     fecha_entrega = db.Column(db.DateTime)
-    usuario_id = db.Column(db.Integer, db.ForeignKey("usuario.id"), nullable=False)
     materiales = db.Column(db.String(255))
     created_on = db.Column(db.DateTime, server_default=db.func.now())
     updated_on = db.Column(
@@ -39,13 +50,20 @@ class Coleccion(db.Model, UserMixin):
         backref=db.backref("colecciones", lazy=True),
     )
 
+    coleccion_tiene_usuario = db.relationship(
+        "Usuario",
+        secondary=coleccion_tiene_usuario,
+        lazy="subquery",
+        backref=db.backref("colecciones", lazy=True),
+    )
+
     def __init__(
         self,
         case_id,
         name,
         fecha_lanzamiento,
         fecha_entrega,
-        usuario_id,
+        usuarios,
         materiales,
         modelos
     ):
@@ -53,16 +71,19 @@ class Coleccion(db.Model, UserMixin):
         self.name = name
         self.fecha_lanzamiento = fecha_lanzamiento
         self.fecha_entrega = fecha_entrega
-        self.usuario_id = usuario_id
+        lista = []
+        for usuario_id in usuarios:
+            lista.append(Usuario.query.get(usuario_id))
+        self.coleccion_tiene_usuario = lista
         self.materiales = materiales
         lista = []
         for modelo_id in modelos:
             lista.append(Modelo.query.get(modelo_id))
         self.coleccion_tiene_modelo = lista
 
-    def crear(case_id, name, fecha_lanzamiento, fecha_entrega, usuario_id, materiales, modelos):
+    def crear(case_id, name, fecha_lanzamiento, fecha_entrega, usuarios, materiales, modelos):
         """Crea una coleccion"""
-        coleccion = Coleccion(case_id, name, fecha_lanzamiento, fecha_entrega, usuario_id, materiales, modelos)
+        coleccion = Coleccion(case_id, name, fecha_lanzamiento, fecha_entrega, usuarios, materiales, modelos)
         db.session.add(coleccion)
         db.session.commit()
     
@@ -99,6 +120,11 @@ class Coleccion(db.Model, UserMixin):
         db.session.commit()
 
     def modificar_lanzamiento(self, nueva_fecha):
-            """Borra la lista temporal de materiales a reservar"""
+            """Modifica la fecha de lanzamiento de la coleccion"""
             self.fecha_lanzamiento = nueva_fecha
+            db.session.commit()
+
+    def modificar_entrega(self, nueva_fecha):
+            """Modifica la fecha de entrega de la coleccion"""
+            self.fecha_entrega = nueva_fecha
             db.session.commit()

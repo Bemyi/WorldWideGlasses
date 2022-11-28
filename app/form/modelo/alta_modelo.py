@@ -1,9 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired, Regexp, Length
-
-# from wtforms.fields.core import SelectField
-from wtforms.fields.choices import SelectField
+from wtforms.validators import DataRequired, Regexp, Length, ValidationError
+from app.models.modelo import Modelo
 
 
 class FormAltaModelo(FlaskForm):
@@ -18,6 +16,12 @@ class FormAltaModelo(FlaskForm):
         ],
         default="",
     )
+
+    def validate_nombre(form, modeloV):
+        modelo = Modelo.get_by_name(modeloV.data)
+        if modelo != None:
+            raise ValidationError("Ya existe ese nombre para otro modelo")
+
     descripcion = StringField(
         "Descripción",
         validators=[

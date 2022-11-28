@@ -6,12 +6,21 @@
 {% endblock %}
 {% block content %}
 <div class="container">
-    {% with messages = get_flashed_messages() %} {% if messages %}
-    <div class="alert alert-danger alert-dismissible">
-        {{ messages[0] }}
-        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category == "success" %}
+    <div class="alert alert-success alert-dismissible">
+        {{ message }} <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
     </div>
-    {% endif %} {% endwith %}
+    {% else %}
+    <div class="alert alert-danger alert-dismissible">
+        {{ message }} <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
@@ -25,7 +34,7 @@
                                 <label for="nombre" class="col-md-10 col-form-label text-md-left">Nombre</label>
                                 <div class="col-md-10">
                                     <input type="text" class="form-control" id="nombre" name="nombre" placeholder=""
-                                        value="{{ form.nombre.data }}" required>
+                                        value="{{ form.nombre.data }}">
                                     {% for error in form.nombre.errors %}
                                     <span style="color:red;">{{ error }}</span>
                                     {% endfor %}
@@ -104,7 +113,7 @@
                                 <div class="col-md-10">
                                     <input type="date" class="form-control" id="fecha_lanzamiento"
                                         name="fecha_lanzamiento" placeholder=""
-                                        value="{{ form.fecha_lanzamiento.data }}" min="2022-10-06" required>
+                                        value="{{ form.fecha_lanzamiento.data }}" required>
                                     {% for error in form.fecha_lanzamiento.errors %}
                                     <span style="color:red;">{{ error }}</span>
                                     {% endfor %}
@@ -118,11 +127,6 @@
                                 <button type="reset" class="btn btn-primary">Limpiar</button>
                             </div>
                         </div>
-                        {% for field, errors in form.errors.items() %}
-                        <div class="alert alert-error">
-                            {{ form[field].label }}: {{ ', '.join(errors) }}
-                        </div>
-                        {% endfor %}
                     </form>
                 </div>
             </div>

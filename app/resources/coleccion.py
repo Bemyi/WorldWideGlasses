@@ -10,7 +10,6 @@ import requests
 import json
 
 from app.models.modelo import Modelo
-from app.models.material import Material
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -33,7 +32,7 @@ def crear():
             assign_task(taskId)
             # Se finaliza la tarea
             updateUserTask(taskId, "completed")
-            time.sleep(5)
+            time.sleep(6)
             # Se asigna la tarea 'Seleccionar fecha de lanzamiento'
             taskId = getUserTaskByName("Seleccionar fecha de lanzamiento", case_id)
             assign_task(taskId)
@@ -151,6 +150,7 @@ def get_user_id():
     URL = "http://localhost:8080/bonita/API/system/session/unusedId"
     headers = getBonitaHeaders()
     response = requestSession.get(URL, headers=headers)
+    print("Response del get user id:")
     print(response)
     print(response.json()["user_id"])
     user_id = response.json()["user_id"]
@@ -238,150 +238,6 @@ def nuevo():
         form = FormAltaColeccion()
         modelos = Modelo.modelos()
         return render_template("coleccion/nuevo.html", form=form, modelos=modelos)
-    else:
-        flash("No tienes permiso para acceder a este sitio", "error")
-    return redirect(url_for("home"))
-
-
-@login_required
-def seleccionar_materiales(id_coleccion):
-    if session["current_rol"] == "Operaciones":
-        """Template Seleccionar materiales"""
-        materiales = Material.materiales()
-        return render_template(
-            "coleccion/seleccion_materiales.html",
-            materiales=materiales,
-            id_coleccion=id_coleccion,
-        )
-    else:
-        flash("No tienes permiso para acceder a este sitio", "error")
-    return redirect(url_for("home"))
-
-
-@login_required
-def seleccion_materiales(id_coleccion):
-    materiales_todos = Material.materiales()
-    if session["current_rol"] == "Operaciones":
-        """Template Seleccionar materiales"""
-        materiales = request.form.getlist("materiales[]")
-        token = login_api_reservas()
-        listado = listado_api_reservas(token, materiales)
-        # filtramos materiales obtenidos
-        mats_obtenidos = [material["name"] for material in listado]
-        # filtramos stocks para utilizarlos mas adelante
-        stocks = [material["stock"] for material in listado]
-        if not (set(materiales) == set(mats_obtenidos)):
-            materiales_faltan = [i for i in materiales if i not in mats_obtenidos]
-            flash(
-                "Faltan los siguientes materiales: " + str(materiales_faltan), "error"
-            )
-            return render_template(
-                "coleccion/seleccion_materiales.html",
-                materiales=materiales_todos,
-                id_coleccion=id_coleccion,
-            )
-        return render_template(
-            "coleccion/guardar_materiales.html",
-            materiales=listado,
-            stocks=stocks,
-            id_coleccion=id_coleccion,
-            fecha_entrega=Coleccion.get_by_id(id_coleccion).fecha_entrega,
-        )
-    flash("Algo falló", "error")
-    return render_template(
-        "coleccion/seleccion_materiales.html", materiales=materiales_todos
-    )
-
-
-@login_required
-def login_api_reservas():
-    requestSession = requests.Session()
-    URL = "http://127.0.0.1:8000/login"
-    body = {"username": current_user.username, "password": current_user.password}
-    headers = {"Content-Type": "application/json"}
-    data = json.dumps(body)
-    response = requestSession.put(URL, data=data, headers=headers)
-    print(response)
-    token = response.json()["token"]
-    return token
-
-
-@login_required
-def listado_api_reservas(token, materiales):
-    requestSession = requests.Session()
-    URL = "http://127.0.0.1:8000/materiales"
-    body = {"names": materiales}
-    headers = {"Content-Type": "application/json", "Authorization": "Bearer " + token}
-    data = json.dumps(body)
-    response = requestSession.put(URL, data=data, headers=headers)
-    listado = response.json()
-    return listado
-
-
-@login_required
-def reservar_api_reservas(token, materiales, id_coleccion):
-    requestSession = requests.Session()
-    URL = "http://127.0.0.1:8000/reservar_materiales"
-    body = {
-        "materials": materiales,
-        "user_id": int(get_user_id()),
-        "colection_id": int(id_coleccion),
-    }
-    headers = {"Content-Type": "application/json", "Authorization": "Bearer " + token}
-    data = json.dumps(body)
-    print(data)
-    response = requestSession.put(URL, data=data, headers=headers)
-    listado = response.json()
-    print(response)
-    print(listado)
-    return listado
-
-
-@login_required
-def guardar_materiales(id_coleccion):
-    if session["current_rol"] == "Operaciones":
-        """Template Reservar materiales"""
-        token = login_api_reservas()
-        materiales = eval(
-            request.form.getlist("materiales[]")[0]
-        )  # uso eval para volverlo dict
-        stocks = eval(
-            request.form.getlist("stocks[]")[0]
-        )  # uso eval para volverlo dict
-        cantidades = request.form.getlist("cantidad[]")
-        print(stocks)
-        listado = []
-        for i in range(len(materiales)):
-            if cantidades[i] != "0":
-                if int(cantidades[i]) > stocks[i]:
-                    flash("Stock insuficiente", "error")
-                    return render_template(
-                        "coleccion/guardar_materiales.html",
-                        materiales=materiales,
-                        stocks=stocks,
-                        id_coleccion=id_coleccion,
-                        fecha_entrega=Coleccion.get_by_id(id_coleccion).fecha_entrega,
-                    )
-                else:
-                    listado.append(
-                        {"id": materiales[i]["id"], "quantity": int(cantidades[i])}
-                    )
-        print(listado)
-        Coleccion.get_by_id(id_coleccion).save_materials(str(listado))
-        set_bonita_variable(
-            Coleccion.get_by_id(id_coleccion).case_id,
-            "materiales_fecha",
-            "true",
-            "java.lang.Boolean",
-        )
-        time.sleep(5)
-        taskId = getUserTaskByName(
-            "Consulta de materiales a la API", Coleccion.get_by_id(id_coleccion).case_id
-        )
-        assign_task(taskId)
-        # Se finaliza la tarea
-        updateUserTask(taskId, "completed")
-        time.sleep(5)
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))

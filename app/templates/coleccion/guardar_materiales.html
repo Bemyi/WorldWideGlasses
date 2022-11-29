@@ -37,56 +37,56 @@
                                             <table class="table">
                                                 <tbody>
                                                     <tr>
-                                                        <div class="col">
-                                                            <td class="col align-self-center">
+                                                        <div class="col-md-3">
+                                                            <td class="col-md-3">
                                                                 Nombre
                                                             </td>
                                                         </div>
-                                                        <div class="col">
-                                                            <td class="col align-self-center">
+                                                        <div class="col-md-3">
+                                                            <td class="col-md-3">
                                                                 Stock
                                                             </td>
                                                         </div>
-                                                        <div class="col">
-                                                            <td class="col align-self-center">
+                                                        <div class="col-md-3">
+                                                            <td class="col-md-3">
                                                                 Proveedor
                                                             </td>
                                                         </div>
-                                                        <div class="col">
-                                                            <td class="col align-self-center">
+                                                        <div class="col-md-3">
+                                                            <td class="col-md-3">
                                                                 Tiempo de llegada
                                                             </td>
                                                         </div>
-                                                        <div class="col">
-                                                            <td class="col align-self-center">
+                                                        <div class="col-md-3">
+                                                            <td class="col-md-3">
                                                                 Cantidad
                                                             </td>
                                                         </div>
                                                     </tr>
                                                     {% for material in materiales %}
                                                     <tr>
-                                                        <div class="col">
-                                                            <td class="col align-self-center">
+                                                        <div class="col-md-3">
+                                                            <td class="col-md-3">
                                                                 {{material["name"]}}
                                                             </td>
                                                         </div>
-                                                        <div class="col">
-                                                            <td class="col align-self-center">
+                                                        <div class="col-md-3">
+                                                            <td class="col-md-3">
                                                                 {{material['stock']}}
                                                             </td>
                                                         </div>
-                                                        <div class="col">
-                                                            <td class="col align-self-center">
+                                                        <div class="col-md-3">
+                                                            <td class="col-md-3">
                                                                 {{material["producer"]}}
                                                             </td>
                                                         </div>
-                                                        <div class="col">
-                                                            <td class="col align-self-center">
+                                                        <div class="col-md-3">
+                                                            <td class="col-md-3">
                                                                 {{material["delivery_time"]}} días
                                                             </td>
                                                         </div>
-                                                        <div class="col">
-                                                            <td class="col align-self-center">
+                                                        <div class="col-md-3">
+                                                            <td class="col-md-3">
                                                                 <input type="number" name="cantidad[]" value="0">
                                                             </td>
                                                         </div>

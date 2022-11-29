@@ -28,22 +28,22 @@
                     <table class="table">
                         <thead class="thead-light">
                             <tr>
-                                <th class="col align-self-center">
+                                <th class="col-md-3">
                                     Nombre
                                 </th>
-                                <th class="col align-self-center">
+                                <th class="col-md-3">
                                     Fecha de lanzamiento
                                 </th>
-                                <th class="col align-self-center">
+                                <th class="col-md-3">
                                     Fecha de entrega
                                 </th>
-                                <th class="col align-self-center">
+                                <th class="col-md-3">
                                     Modelos
                                 </th>
-                                <th class="col align-self-center">
+                                <th class="col-md-3">
                                     Reservas
                                 </th>
-                                <th class="col align-self-center">
+                                <th class="col-md-3">
                                     Reprogramación
                                 </th>
                             </tr>
@@ -51,16 +51,16 @@
                         <tbody>
                             {% for coleccion in current_user.colecciones %}
                             <tr>
-                                <td class="col align-self-center">
+                                <td class="col-md-3">
                                     {{coleccion.name}}
                                 </td>
-                                <td class="col align-self-center">
+                                <td class="col-md-3">
                                     {{coleccion.fecha_lanzamiento.strftime('%d-%m-%Y')}}
                                 </td>
-                                <td class="col align-self-center">
+                                <td class="col-md-3">
                                     {{coleccion.fecha_entrega.strftime('%d-%m-%Y')}}
                                 </td>
-                                <td class="col align-self-center">
+                                <td class="col-md-3">
                                     <button type="button" class="btn-sm btn-primary" data-toggle="modal"
                                         data-target="#modelosModal{{coleccion.id}}">
                                         Ver
@@ -109,55 +109,21 @@
                                 {% if session["current_rol"] == "Operaciones" %}
                                 {% if "Consulta de materiales a la API" in coleccion.get_ready_tasks(coleccion.case_id)
                                 %}
-                                <td class="col align-self-center">
+                                <td class="col-md-3">
                                     <a class="btn btn-primary"
                                         href="{{ url_for('seleccionar_materiales', id_coleccion=coleccion.id) }}">Seleccionar
                                         materiales</a>
                                 </td>
-                                {% elif "Consultar espacio de fabricación" in
-                                coleccion.get_ready_tasks(coleccion.case_id) %}
-                                <td class="col align-self-center">
-                                    <button type="button" class="btn-sm btn-primary" data-toggle="modal"
-                                        data-target="#espacioModal{{coleccion.id}}">
-                                        Seleccionar espacio de fabricación
-                                    </button>
-                                    <div class="modal fade" id="espacioModal{{coleccion.id}}" tabindex="-1"
-                                        role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="exampleModalLabel">Cantidad de días para
-                                                        la
-                                                        fabricación de la colección {{coleccion.name}}</h5>
-                                                    <button type="button" class="close" data-dismiss="modal"
-                                                        aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <form class="form" method="POST"
-                                                        action="{{ url_for('seleccionar_espacio', id_coleccion=coleccion.id) }}">
-                                                        <label for="fname">Días</label>
-                                                        <input type="number" name="dias" value="1">
-                                                        <div class="form-group row justify-content-center">
-                                                            <div class="col-md-10">
-                                                                <button type="submit"
-                                                                    class="btn btn-primary">Cargar</button>
-                                                                <button type="reset"
-                                                                    class="btn btn-primary">Limpiar</button>
-                                                            </div>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                {% elif "Consultar espacio de fabricación" in coleccion.get_ready_tasks(coleccion.case_id) %}
+                                <td class="col-md-3">
+                                    <a class="btn btn-primary"
+                                        href="{{ url_for('seleccionar_espacio', id_coleccion=coleccion.id) }}">Seleccionar espacio de fabricación</a>
                                 </td>
                                 {% else %}
-                                <td> Nada que hacer...</td>
+                                <td class="col-md-3"> Nada que hacer...</td>
                                 {% endif %}
                                 {% else %}
-                                <td>
+                                <td class="col-md-3">
                                     No tienes permisos para manejar las reservas.
                                 </td>
                                 {% endif %}
@@ -167,7 +133,7 @@
                                         href="{{ url_for('reprogramar_coleccion', id_coleccion=coleccion.id) }}">Reprogramar
                                         Colección</a> </td>
                                 {% else %}
-                                <td> No tienes permisos para reprogramar. </td>
+                                <td class="col-md-3"> No tienes permisos para reprogramar. </td>
                                 {% endif %}
                             </tr>
                             {% endfor %}
@@ -177,9 +143,11 @@
             </div>
         </div>
         <br>
+        {% if session["current_rol"] == "Creativa" %}
         <div class="col-md-10 justify-content-center">
             <a class="btn btn-primary" href="{{ url_for('nueva_coleccion') }}" role="button">Crear colección</a>
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

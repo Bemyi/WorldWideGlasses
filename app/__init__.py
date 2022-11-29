@@ -10,7 +10,7 @@ from app.resources import auth
 from app.resources import coleccion
 from app.resources import tipo
 from app.resources import modelo
-from app.resources import espacios_fabricacion
+from app.resources import reservas
 
 # LoginManager
 from flask_login import LoginManager, login_required
@@ -99,19 +99,19 @@ def create_app(test_config=None):
     app.add_url_rule(
         "/coleccion/<id_coleccion>/guardar_materiales",
         "guardar_materiales",
-        coleccion.guardar_materiales,
+        reservas.guardar_materiales,
         methods=["POST"],
     )
     app.add_url_rule(
         "/coleccion/<id_coleccion>/seleccionar_materiales",
         "seleccionar_materiales",
-        coleccion.seleccionar_materiales,
+        reservas.seleccionar_materiales,
         methods=["GET", "POST"],
     )
     app.add_url_rule(
         "/coleccion/<id_coleccion>/seleccion_materiales",
         "seleccion_materiales",
-        coleccion.seleccion_materiales,
+        reservas.seleccion_materiales,
         methods=["POST"],
     )
 
@@ -119,13 +119,13 @@ def create_app(test_config=None):
     app.add_url_rule(
         "/coleccion/<id_coleccion>/seleccionar_espacio",
         "seleccionar_espacio",
-        espacios_fabricacion.seleccionar_espacio,
+        reservas.seleccionar_espacio,
         methods=["GET", "POST"],
     )
     app.add_url_rule(
         "/coleccion/<id_coleccion>/reservar_espacio",
         "reservar_espacio",
-        espacios_fabricacion.reservar_espacio,
+        reservas.reservar_espacio,
         methods=["POST"],
     )
 

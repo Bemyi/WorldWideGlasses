@@ -1,6 +1,7 @@
 from app.db import db
 import requests
 from flask import session
+
 # Login
 from flask_login import UserMixin
 
@@ -9,7 +10,9 @@ from app.models.usuario import Usuario
 
 coleccion_tiene_modelo = db.Table(
     "coleccion_tiene_modelo",
-    db.Column("coleccion_id", db.Integer, db.ForeignKey("coleccion.id"), primary_key=True),
+    db.Column(
+        "coleccion_id", db.Integer, db.ForeignKey("coleccion.id"), primary_key=True
+    ),
     db.Column(
         "modelo_id",
         db.Integer,
@@ -20,7 +23,9 @@ coleccion_tiene_modelo = db.Table(
 
 coleccion_tiene_usuario = db.Table(
     "coleccion_tiene_usuario",
-    db.Column("coleccion_id", db.Integer, db.ForeignKey("coleccion.id"), primary_key=True),
+    db.Column(
+        "coleccion_id", db.Integer, db.ForeignKey("coleccion.id"), primary_key=True
+    ),
     db.Column(
         "usuario_id",
         db.Integer,
@@ -28,6 +33,7 @@ coleccion_tiene_usuario = db.Table(
         primary_key=True,
     ),
 )
+
 
 class Coleccion(db.Model, UserMixin):
     __tablename__ = "coleccion"
@@ -87,42 +93,51 @@ class Coleccion(db.Model, UserMixin):
         coleccion = Coleccion(case_id, name, fecha_lanzamiento, fecha_entrega, usuarios, modelos)
         db.session.add(coleccion)
         db.session.commit()
-    
+
     def get_by_name(name):
         return Coleccion.query.filter_by(name=name).first()
-        
+
     def get_by_id(id):
         return Coleccion.query.filter_by(id=id).first()
 
     def get_ready_tasks(self, case_id):
         requestSession = requests.Session()
-        URL = "http://localhost:8080/bonita/API/bpm/userTask?c=10&p=0&f="+str(case_id)+"caseId=1&f=state=ready"
+        URL = (
+            "http://localhost:8080/bonita/API/bpm/userTask?c=10&p=0&f="
+            + str(case_id)
+            + "caseId=1&f=state=ready"
+        )
         headers = {
-        "Cookie": session["JSESSION"],
-        "X-Bonita-API-Token": session["bonita_token"],
-        "Content-Type": "application/json",
+            "Cookie": session["JSESSION"],
+            "X-Bonita-API-Token": session["bonita_token"],
+            "Content-Type": "application/json",
         }
         params = {}
         response = requestSession.get(URL, headers=headers, params=params)
         print("Response del get tareas ready:")
-        tareas = ([task['name'] for task in response.json()])
+        tareas = [task["name"] for task in response.json()]
         print(tareas)
-        return(tareas)
+        return tareas
 
     def get_completed_tasks_by_name(self, case_id, name):
         requestSession = requests.Session()
-        URL = "http://localhost:8080/bonita/API/bpm/archivedFlowNode?p=0&c=10&f=caseId%3d"+str(case_id)+"&f=state%3dcompleted&f=name%3d"+name
+        URL = (
+            "http://localhost:8080/bonita/API/bpm/archivedFlowNode?p=0&c=10&f=caseId%3d"
+            + str(case_id)
+            + "&f=state%3dcompleted&f=name%3d"
+            + name
+        )
         headers = {
-        "Cookie": session["JSESSION"],
-        "X-Bonita-API-Token": session["bonita_token"],
-        "Content-Type": "application/json",
+            "Cookie": session["JSESSION"],
+            "X-Bonita-API-Token": session["bonita_token"],
+            "Content-Type": "application/json",
         }
         params = {}
         response = requestSession.get(URL, headers=headers, params=params)
         print("Response del get tareas completed:")
-        tareas = ([task['name'] for task in response.json()])
+        tareas = [task["name"] for task in response.json()]
         print(tareas)
-        return(tareas)
+        return tareas
 
     def save_materials(self, materiales):
         """Guarda la lista temporal de materiales a reservar"""
@@ -141,11 +156,22 @@ class Coleccion(db.Model, UserMixin):
         db.session.commit()
 
     def modificar_lanzamiento(self, nueva_fecha):
-            """Modifica la fecha de lanzamiento de la coleccion"""
-            self.fecha_lanzamiento = nueva_fecha
-            db.session.commit()
+        """Modifica la fecha de lanzamiento de la coleccion"""
+        self.fecha_lanzamiento = nueva_fecha
+        db.session.commit()
 
     def modificar_entrega(self, nueva_fecha):
-            """Modifica la fecha de entrega de la coleccion"""
-            self.fecha_entrega = nueva_fecha
-            db.session.commit()
+        """Modifica la fecha de entrega de la coleccion"""
+        self.fecha_entrega = nueva_fecha
+        db.session.commit()
+
+    def get_all_colections():
+        return Coleccion.query.all()
+
+    def get_most_used_model():
+        print(
+            (Coleccion.coleccion_tiene_modelo)
+            .query.count(Coleccion.coleccion_tiene_modelo.modelo_id)
+            .group_by(Coleccion.coleccion_tiene_modelo.modelo_id)
+            .first()
+        )

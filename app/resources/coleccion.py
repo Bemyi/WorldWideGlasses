@@ -1,14 +1,19 @@
 from datetime import timedelta
 import time
 from flask import redirect, render_template, request, url_for, flash, session, jsonify
-from flask_login import current_user, login_required
+from flask_login import login_required
 from app.form.coleccion.alta_coleccion import FormAltaColeccion
 from app.form.coleccion.reprogramar_coleccion import FormReprogramarColeccion
 from app.form.tarea.alta_tarea import FormAltaTarea
 from app.models.coleccion import Coleccion
 from app.models.tarea import Tarea
-import requests
-import json
+from app.helpers.bonita_api import (
+    init_process,
+    assign_task,
+    updateUserTask,
+    set_bonita_variable,
+    getUserTaskByName,
+)
 
 from app.models.modelo import Modelo
 
@@ -110,128 +115,6 @@ def crear():
 
 
 @login_required
-def init_process():
-    # se le pega a la API y se recupera el id del proceso
-    requestSession = requests.Session()
-    URL = "http://localhost:8080/bonita/API/bpm/process?s=Creación de colección"
-    headers = getBonitaHeaders()
-    response = requestSession.get(URL, headers=headers)
-    print("Response del get id del proceso:")
-    print(response)
-    if response.status_code == 200:
-        processId = response.json()[0]["id"]
-        print("Process ID: " + response.json()[0]["id"])
-
-        # se instancia el proceso con su id, creando una tarea
-        URL = (
-            "http://localhost:8080/bonita/API/bpm/process/"
-            + processId
-            + "/instantiation"
-        )
-        headers = getBonitaHeaders()
-        response = requestSession.post(URL, headers=headers)
-
-        print("Response al instanciar proceso:")
-        print(response)
-        print(response.json())
-        case_id = response.json()["caseId"]
-        print("Case ID:")
-        print(case_id)
-        return case_id
-    else:
-        print("Entro al else")
-        return redirect(url_for("logout"))  # esto no anda!!!
-
-
-@login_required
-def get_user_id():
-    """Se recupera el id del usuario logeado"""
-    requestSession = requests.Session()
-    URL = "http://localhost:8080/bonita/API/system/session/unusedId"
-    headers = getBonitaHeaders()
-    response = requestSession.get(URL, headers=headers)
-    print("Response del get user id:")
-    print(response)
-    print(response.json()["user_id"])
-    user_id = response.json()["user_id"]
-    return user_id
-
-
-@login_required
-def assign_task(taskId):
-    """Se le asigna una tarea al usuario logeado"""
-    requestSession = requests.Session()
-    user_id = get_user_id()
-    URL = "http://localhost:8080/bonita/API/bpm/humanTask/" + taskId
-    headers = getBonitaHeaders()
-    body = {"assigned_id": user_id}
-    # Lo convierto a json porque sino tira 500
-    data = json.dumps(body)
-    response = requestSession.put(URL, headers=headers, data=data)
-    print(response)
-
-
-@login_required
-def updateUserTask(taskId, state):
-    requestSession = requests.Session()
-    URL = "http://localhost:8080/bonita/API/bpm/userTask/" + taskId
-    headers = getBonitaHeaders()
-    body = {"state": state}
-    data = json.dumps(body)
-    response = requestSession.put(URL, headers=headers, data=data)
-    print(response)
-
-
-@login_required
-def set_bonita_variable(case_id, variable_name, variable_value, type):
-    """setea un valor a la variable que es pasada por parametro"""
-    requestSession = requests.Session()
-    URL = (
-        "http://localhost:8080/bonita/API/bpm/caseVariable/"
-        + str(case_id)
-        + "/"
-        + variable_name
-    )
-    body = {"value": variable_value, "type": type}
-    headers = getBonitaHeaders()
-    data = json.dumps(body)
-    response = requestSession.put(URL, headers=headers, data=data)
-    print("Response de setear variable bonita:")
-    print(response)
-    response = requestSession.get(URL, headers=headers)
-    print("Response al hacer get de variable bonita:")
-    print(response)
-    print("Valor de la variable coleccion_id:")
-    print(response.json()["value"])
-
-
-@login_required
-def getUserTaskByName(taskName, caseId):
-    """Obtengo la tarea por su case y name para tener su id"""
-    requestSession = requests.Session()
-    URL = "http://localhost:8080/bonita/API/bpm/userTask"
-    headers = getBonitaHeaders()
-    params = {"s": taskName, "caseId": caseId}
-    response = requestSession.get(URL, headers=headers, params=params)
-    print("Response del get user task:")
-    print(response)
-    print(response.json())
-    print(response.json()[0]["id"])
-    taskId = response.json()[0]["id"]
-    return taskId
-
-
-@login_required
-def getBonitaHeaders():
-    headers = {
-        "Cookie": session["JSESSION"],
-        "X-Bonita-API-Token": session["bonita_token"],
-        "Content-Type": "application/json",
-    }
-    return headers
-
-
-@login_required
 def nuevo():
     if session["current_rol"] == "Creativa":
         """Template Nueva coleccion"""
@@ -299,6 +182,7 @@ def modificar_fecha(id_coleccion):
         flash("danger_msg", "No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))
 
+
 @login_required
 def planificar_fabricacion(id_coleccion):
     if session["current_rol"] == "Operaciones":
@@ -306,11 +190,15 @@ def planificar_fabricacion(id_coleccion):
         coleccion = Coleccion.get_by_id(id_coleccion)
         tareas = Tarea.get_by_coleccion_id(id_coleccion)
         return render_template(
-            "coleccion/planificar_fabricacion.html", coleccion=coleccion, tareas=tareas, form=form
+            "coleccion/planificar_fabricacion.html",
+            coleccion=coleccion,
+            tareas=tareas,
+            form=form,
         )
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))
+
 
 @login_required
 def elaborar_plan(id_coleccion):

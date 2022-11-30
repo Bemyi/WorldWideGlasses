@@ -110,22 +110,26 @@
                                     </div>
                                 </td>
                                 {% if session["current_rol"] == "Operaciones" %}
-                                {% if "Consulta de materiales a la API" in coleccion.get_ready_tasks(coleccion.case_id)
+                                {% if "Consulta de materiales a la API" in get_ready_tasks(coleccion.case_id)
                                 %}
                                 <td class="col-md-3">
                                     <a class="btn btn-primary"
                                         href="{{ url_for('seleccionar_materiales', id_coleccion=coleccion.id) }}">Seleccionar
                                         materiales</a>
                                 </td>
-                                {% elif "Consultar espacio de fabricación" in coleccion.get_ready_tasks(coleccion.case_id) %}
+                                {% elif "Consultar espacio de fabricación" in get_ready_tasks(coleccion.case_id) %}
                                 <td class="col-md-3">
                                     <a class="btn btn-primary"
-                                        href="{{ url_for('seleccionar_espacio', id_coleccion=coleccion.id) }}">Seleccionar espacio de fabricación</a>
+                                        href="{{ url_for('seleccionar_espacio', id_coleccion=coleccion.id) }}">Seleccionar
+                                        espacio de fabricación</a>
                                 </td>
-                                {% elif coleccion.get_completed_tasks_by_name(coleccion.case_id, "Reservar espacio de fabricación") and "Elaborar plan de fabricación" not in coleccion.get_ready_tasks(coleccion.case_id) %}
+                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Reservar espacio de
+                                fabricación") and "Elaborar plan de fabricación" not in
+                                get_ready_tasks(coleccion.case_id) %}
                                 <td class="col-md-3">
                                     <a class="btn btn-success"
-                                        href="{{ url_for('recibir_materiales', id_coleccion=coleccion.id) }}">Marcar materiales como recibidos</a>
+                                        href="{{ url_for('recibir_materiales', id_coleccion=coleccion.id) }}">Marcar
+                                        materiales como recibidos</a>
                                 </td>
                                 {% else %}
                                 <td class="col-md-3"> Nada que hacer...</td>
@@ -143,12 +147,13 @@
                                 {% else %}
                                 <td class="col-md-3"> No tienes permisos para reprogramar. </td>
                                 {% endif %}
-                                
+
                                 {% if session["current_rol"] == "Operaciones" %}
-                                {% if "Elaborar plan de fabricación" in coleccion.get_ready_tasks(coleccion.case_id) %}
+                                {% if "Elaborar plan de fabricación" in get_ready_tasks(coleccion.case_id) %}
                                 <td class="col-md-3">
                                     <a class="btn btn-primary"
-                                        href="{{ url_for('planificar_fabricacion', id_coleccion=coleccion.id) }}">Elaborar plan de fabricación</a>
+                                        href="{{ url_for('planificar_fabricacion', id_coleccion=coleccion.id) }}">Elaborar
+                                        plan de fabricación</a>
                                 </td>
                                 {% else %}
                                 <td class="col-md-3"> Nada que hacer...</td>

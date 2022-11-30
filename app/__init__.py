@@ -1,9 +1,8 @@
 import os
 from os import environ
-from flask import Flask, render_template, session
+from flask import Flask, render_template
 from app.db import db
 from config import config
-import requests
 
 # Resources
 from app.resources import auth
@@ -17,6 +16,7 @@ from app.resources import metrica
 # LoginManager
 from flask_login import LoginManager, login_required
 from flask_session import Session
+from app.helpers.bonita_api import get_completed_tasks_by_name, get_ready_tasks
 
 
 def create_app(test_config=None):
@@ -69,6 +69,11 @@ def create_app(test_config=None):
         # since the user_id is just the primary key of our user table, use it in the query for the user
         return Usuario.query.get(int(user_id))
 
+    app.jinja_env.globals.update(
+        get_ready_tasks=get_ready_tasks,
+        get_completed_tasks_by_name=get_completed_tasks_by_name,
+    )
+
     # Autenticación
     app.add_url_rule("/login", "login", auth.login)
     app.add_url_rule("/login", "login_auth", auth.login_post, methods=["POST"])
@@ -110,13 +115,17 @@ def create_app(test_config=None):
 
     # Ruta de tareas
     app.add_url_rule(
-        "/coleccion/<id_coleccion>/crear", "crear_tarea", tarea.crear_tarea, methods=["POST"]
+        "/coleccion/<id_coleccion>/crear",
+        "crear_tarea",
+        tarea.crear_tarea,
+        methods=["POST"],
     )
     app.add_url_rule(
-        "/coleccion/<id_coleccion>/<id_tarea>/eliminar", "eliminar_tarea", tarea.eliminar_tarea, methods=["GET", "DELETE"]
+        "/coleccion/<id_coleccion>/<id_tarea>/eliminar",
+        "eliminar_tarea",
+        tarea.eliminar_tarea,
+        methods=["GET", "DELETE"],
     )
-    
-    
 
     # Ruta de materiales
     app.add_url_rule(

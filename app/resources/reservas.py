@@ -153,6 +153,20 @@ def guardar_materiales(id_coleccion):
         flash("No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))
 
+@login_required
+def recibir_materiales(id_coleccion):
+    if session["current_rol"] == "Operaciones":
+        # Seteo la variable de bonita materiales_disponibles
+        coleccion.set_bonita_variable(
+            Coleccion.get_by_id(id_coleccion).case_id, "materiales_disponibles", "true", "java.lang.Boolean"
+        )
+        flash("Materiales recibidos!", "success")
+    else:
+        flash("No tienes permiso para acceder a este sitio", "error")
+    # doy tiempo a que avance el proceso
+    time.sleep(5)
+    return redirect(url_for("home"))
+
 # ESPACIOS
 @login_required
 def reservar_espacio(id_coleccion):
@@ -183,10 +197,6 @@ def reservar_espacio(id_coleccion):
         reservar_api_materiales(token, id_coleccion)
         # Se finaliza la tarea
         coleccion.updateUserTask(taskId, "completed")
-        # Seteo la variable de bonita materiales_disponibles
-        coleccion.set_bonita_variable(
-            case_id, "materiales_disponibles", "true", "java.lang.Boolean"
-        )
 
         time.sleep(5)
         taskId = coleccion.getUserTaskByName(

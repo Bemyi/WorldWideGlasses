@@ -46,6 +46,9 @@
                                 <th class="col-md-3">
                                     Reprogramación
                                 </th>
+                                <th class="col-md-3">
+                                    Fabricación
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -119,6 +122,11 @@
                                     <a class="btn btn-primary"
                                         href="{{ url_for('seleccionar_espacio', id_coleccion=coleccion.id) }}">Seleccionar espacio de fabricación</a>
                                 </td>
+                                {% elif coleccion.get_completed_tasks_by_name(coleccion.case_id, "Reservar espacio de fabricación") and "Elaborar plan de fabricación" not in coleccion.get_ready_tasks(coleccion.case_id) %}
+                                <td class="col-md-3">
+                                    <a class="btn btn-success"
+                                        href="{{ url_for('recibir_materiales', id_coleccion=coleccion.id) }}">Marcar materiales como recibidos</a>
+                                </td>
                                 {% else %}
                                 <td class="col-md-3"> Nada que hacer...</td>
                                 {% endif %}
@@ -134,6 +142,21 @@
                                         Colección</a> </td>
                                 {% else %}
                                 <td class="col-md-3"> No tienes permisos para reprogramar. </td>
+                                {% endif %}
+                                
+                                {% if session["current_rol"] == "Operaciones" %}
+                                {% if "Elaborar plan de fabricación" in coleccion.get_ready_tasks(coleccion.case_id) %}
+                                <td class="col-md-3">
+                                    <a class="btn btn-primary"
+                                        href="">Elaborar plan de fabricación</a>
+                                </td>
+                                {% else %}
+                                <td class="col-md-3"> Nada que hacer...</td>
+                                {% endif %}
+                                {% else %}
+                                <td class="col-md-3">
+                                    No tienes permisos para administrar la fabricación.
+                                </td>
                                 {% endif %}
                             </tr>
                             {% endfor %}

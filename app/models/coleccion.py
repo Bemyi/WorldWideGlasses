@@ -94,7 +94,6 @@ class Coleccion(db.Model, UserMixin):
         return Coleccion.query.filter_by(id=id).first()
 
     def get_ready_tasks(self, case_id):
-        print(case_id)
         requestSession = requests.Session()
         URL = "http://localhost:8080/bonita/API/bpm/userTask?c=10&p=0&f="+str(case_id)+"caseId=1&f=state=ready"
         headers = {
@@ -104,7 +103,22 @@ class Coleccion(db.Model, UserMixin):
         }
         params = {}
         response = requestSession.get(URL, headers=headers, params=params)
-        print("Response del get tareas:")
+        print("Response del get tareas ready:")
+        tareas = ([task['name'] for task in response.json()])
+        print(tareas)
+        return(tareas)
+
+    def get_completed_tasks_by_name(self, case_id, name):
+        requestSession = requests.Session()
+        URL = "http://localhost:8080/bonita/API/bpm/archivedFlowNode?p=0&c=10&f=caseId%3d"+str(case_id)+"&f=state%3dcompleted&f=name%3d"+name
+        headers = {
+        "Cookie": session["JSESSION"],
+        "X-Bonita-API-Token": session["bonita_token"],
+        "Content-Type": "application/json",
+        }
+        params = {}
+        response = requestSession.get(URL, headers=headers, params=params)
+        print("Response del get tareas completed:")
         tareas = ([task['name'] for task in response.json()])
         print(tareas)
         return(tareas)

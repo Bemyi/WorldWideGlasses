@@ -114,6 +114,12 @@ def create_app(test_config=None):
         reservas.seleccion_materiales,
         methods=["POST"],
     )
+    app.add_url_rule(
+        "/coleccion/<id_coleccion>/recibir_materiales",
+        "recibir_materiales",
+        reservas.recibir_materiales,
+        methods=["GET", "POST"],
+    )
 
     # Ruta de espacios de fabricacion
     app.add_url_rule(

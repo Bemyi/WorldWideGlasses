@@ -11,6 +11,7 @@ from app.resources import coleccion
 from app.resources import tipo
 from app.resources import modelo
 from app.resources import reservas
+from app.resources import tarea
 
 # LoginManager
 from flask_login import LoginManager, login_required
@@ -94,6 +95,27 @@ def create_app(test_config=None):
         coleccion.modificar_fecha,
         methods=["POST"],
     )
+    app.add_url_rule(
+        "/coleccion/<id_coleccion>/planificar",
+        "planificar_fabricacion",
+        coleccion.planificar_fabricacion,
+    )
+    app.add_url_rule(
+        "/coleccion/<id_coleccion>/elaborar_plan",
+        "elaborar_plan",
+        coleccion.elaborar_plan,
+        methods=["POST"],
+    )
+
+    # Ruta de tareas
+    app.add_url_rule(
+        "/coleccion/<id_coleccion>/crear", "crear_tarea", tarea.crear_tarea, methods=["POST"]
+    )
+    app.add_url_rule(
+        "/coleccion/<id_coleccion>/<id_tarea>/eliminar", "eliminar_tarea", tarea.eliminar_tarea, methods=["GET", "DELETE"]
+    )
+    
+    
 
     # Ruta de materiales
     app.add_url_rule(

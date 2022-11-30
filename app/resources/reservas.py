@@ -206,7 +206,11 @@ def reservar_espacio(id_coleccion):
         coleccion.assign_task(taskId)
         token = login_api_espacios()
         space_id = int(request.form.get("espacio"))
-        reservar_api_espacios(token, space_id, id_coleccion)
+        espacio = reservar_api_espacios(token, space_id, id_coleccion)
+        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+        print(espacio["start_date"])
+        print(espacio["end_date"])
+        Coleccion.get_by_id(id_coleccion).save_espacio_fabricacion(espacio["start_date"], espacio["end_date"])
         # Se finaliza la tarea
         coleccion.updateUserTask(taskId, "completed")
         
@@ -257,10 +261,10 @@ def reservar_api_espacios(token, space_id, id_coleccion):
     data = json.dumps(body)
     print(data)
     response = requestSession.put(URL, data=data, headers=headers)
-    listado = response.json()
+    espacio = response.json()
     print(response)
-    print(listado)
-    return listado
+    print(espacio)
+    return espacio
 
 
 @login_required

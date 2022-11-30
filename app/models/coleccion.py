@@ -37,7 +37,10 @@ class Coleccion(db.Model, UserMixin):
     name = db.Column(db.String(255), unique=True)
     fecha_lanzamiento = db.Column(db.DateTime)
     fecha_entrega = db.Column(db.DateTime)
-    materiales = db.Column(db.String(255))
+    materiales = db.Column(db.String(255), nullable=True)
+    tareas = db.relationship("Tarea", backref="coleccion", uselist=False)
+    inicio_fabricacion = db.Column(db.DateTime, nullable=True)
+    fin_fabricacion = db.Column(db.DateTime, nullable=True)
     created_on = db.Column(db.DateTime, server_default=db.func.now())
     updated_on = db.Column(
         db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now()
@@ -64,7 +67,6 @@ class Coleccion(db.Model, UserMixin):
         fecha_lanzamiento,
         fecha_entrega,
         usuarios,
-        materiales,
         modelos
     ):
         self.case_id = case_id
@@ -75,15 +77,14 @@ class Coleccion(db.Model, UserMixin):
         for usuario_id in usuarios:
             lista.append(Usuario.query.get(usuario_id))
         self.coleccion_tiene_usuario = lista
-        self.materiales = materiales
         lista = []
         for modelo_id in modelos:
             lista.append(Modelo.query.get(modelo_id))
         self.coleccion_tiene_modelo = lista
 
-    def crear(case_id, name, fecha_lanzamiento, fecha_entrega, usuarios, materiales, modelos):
+    def crear(case_id, name, fecha_lanzamiento, fecha_entrega, usuarios, modelos):
         """Crea una coleccion"""
-        coleccion = Coleccion(case_id, name, fecha_lanzamiento, fecha_entrega, usuarios, materiales, modelos)
+        coleccion = Coleccion(case_id, name, fecha_lanzamiento, fecha_entrega, usuarios, modelos)
         db.session.add(coleccion)
         db.session.commit()
     
@@ -131,6 +132,12 @@ class Coleccion(db.Model, UserMixin):
     def delete_materials(self):
         """Borra la lista temporal de materiales a reservar"""
         self.materiales = ""
+        db.session.commit()
+
+    def save_espacio_fabricacion(self, inicio, fin):
+        """Guarda las fechas del espacio de fabricación reservado"""
+        self.inicio_fabricacion = inicio
+        self.fin_fabricacion = fin
         db.session.commit()
 
     def modificar_lanzamiento(self, nueva_fecha):

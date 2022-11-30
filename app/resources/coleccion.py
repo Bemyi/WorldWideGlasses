@@ -3,9 +3,10 @@ import time
 from flask import redirect, render_template, request, url_for, flash, session, jsonify
 from flask_login import current_user, login_required
 from app.form.coleccion.alta_coleccion import FormAltaColeccion
-from app.form.coleccion.seleccionar_materiales import FormSeleccionarMateriales
 from app.form.coleccion.reprogramar_coleccion import FormReprogramarColeccion
+from app.form.tarea.alta_tarea import FormAltaTarea
 from app.models.coleccion import Coleccion
+from app.models.tarea import Tarea
 import requests
 import json
 
@@ -46,7 +47,6 @@ def crear():
                 fecha_lanzamiento,
                 fecha_lanzamiento - timedelta(30),
                 [1, 2, 3],
-                "",
                 modelos,
             )
             # Cargar las variables en bonita
@@ -297,4 +297,25 @@ def modificar_fecha(id_coleccion):
             )
     else:
         flash("danger_msg", "No tienes permiso para acceder a este sitio", "error")
+    return redirect(url_for("home"))
+
+@login_required
+def planificar_fabricacion(id_coleccion):
+    if session["current_rol"] == "Operaciones":
+        form = FormAltaTarea()
+        coleccion = Coleccion.get_by_id(id_coleccion)
+        tareas = Tarea.get_by_coleccion_id(id_coleccion)
+        return render_template(
+            "coleccion/planificar_fabricacion.html", coleccion=coleccion, tareas=tareas, form=form
+        )
+    else:
+        flash("No tienes permiso para acceder a este sitio", "error")
+    return redirect(url_for("home"))
+
+@login_required
+def elaborar_plan(id_coleccion):
+    if session["current_rol"] == "Operaciones":
+        print("hola")
+    else:
+        flash("No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))

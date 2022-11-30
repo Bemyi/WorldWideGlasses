@@ -148,7 +148,7 @@
                                 {% if "Elaborar plan de fabricación" in coleccion.get_ready_tasks(coleccion.case_id) %}
                                 <td class="col-md-3">
                                     <a class="btn btn-primary"
-                                        href="">Elaborar plan de fabricación</a>
+                                        href="{{ url_for('planificar_fabricacion', id_coleccion=coleccion.id) }}">Elaborar plan de fabricación</a>
                                 </td>
                                 {% else %}
                                 <td class="col-md-3"> Nada que hacer...</td>

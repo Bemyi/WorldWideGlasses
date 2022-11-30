@@ -38,29 +38,21 @@ def init_process():
     response = requestSession.get(URL, headers=headers)
     print("Response del get id del proceso:")
     print(response)
-    if response.status_code == 200:
-        processId = response.json()[0]["id"]
-        print("Process ID: " + response.json()[0]["id"])
+    processId = response.json()[0]["id"]
+    print("Process ID: " + response.json()[0]["id"])
 
-        # se instancia el proceso con su id, creando una tarea
-        URL = (
-            "http://localhost:8080/bonita/API/bpm/process/"
-            + processId
-            + "/instantiation"
-        )
-        headers = getBonitaHeaders()
-        response = requestSession.post(URL, headers=headers)
+    # se instancia el proceso con su id, creando una tarea
+    URL = "http://localhost:8080/bonita/API/bpm/process/" + processId + "/instantiation"
+    headers = getBonitaHeaders()
+    response = requestSession.post(URL, headers=headers)
 
-        print("Response al instanciar proceso:")
-        print(response)
-        print(response.json())
-        case_id = response.json()["caseId"]
-        print("Case ID:")
-        print(case_id)
-        return case_id
-    else:
-        print("Entro al else")
-        return redirect(url_for("logout"))  # esto no anda!!!
+    print("Response al instanciar proceso:")
+    print(response)
+    print(response.json())
+    case_id = response.json()["caseId"]
+    print("Case ID:")
+    print(case_id)
+    return case_id
 
 
 @login_required

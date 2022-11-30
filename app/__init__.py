@@ -11,6 +11,7 @@ from app.resources import coleccion
 from app.resources import tipo
 from app.resources import modelo
 from app.resources import reservas
+from app.resources import metrica
 
 # LoginManager
 from flask_login import LoginManager, login_required
@@ -142,5 +143,8 @@ def create_app(test_config=None):
     # Ruta de modelo
     app.add_url_rule("/modelo/nuevo", "nuevo_modelo", modelo.nuevo)
     app.add_url_rule("/modelo/crear", "crear_modelo", modelo.crear, methods=["POST"])
+
+    # Ruta de metricas
+    app.add_url_rule("/metrica", "metrica_index", metrica.index)
 
     return app

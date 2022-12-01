@@ -28,7 +28,7 @@ class Tarea(db.Model, UserMixin):
         self.nombre = nombre
         self.descripcion = descripcion
         self.fecha_limite = fecha_limite
-        self.coleccion_id = coleccion_id,
+        self.coleccion_id = (coleccion_id,)
         self.finalizada = False
 
     def crear(nombre, descripcion, fecha_limite, coleccion_id):
@@ -64,9 +64,15 @@ class Tarea(db.Model, UserMixin):
         return Tarea.query.filter_by(coleccion_id=coleccion_id).all()
 
     def coleccion_finalizada(id_coleccion):
-        tareas = Tarea.query.filter_by(coleccion_id=id_coleccion, finalizada=False).all()
+        tareas = Tarea.query.filter_by(
+            coleccion_id=id_coleccion, finalizada=False
+        ).all()
         print("TAREAS FINALIZADAS!!")
         print(tareas)
         return len(tareas) == 0
 
-
+    def eliminar(coleccion_id):
+        lista = Tarea.query.filter_by(coleccion_id=coleccion_id).all()
+        for l in lista:
+            db.session.delete(l)
+            db.session.commit()

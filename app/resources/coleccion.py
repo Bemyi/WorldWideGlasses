@@ -17,7 +17,8 @@ from app.helpers.bonita_api import (
     set_bonita_variable,
     getUserTaskByName,
     get_ready_tasks,
-    get_completed_tasks_by_name
+    get_completed_tasks_by_name,
+    deleteCase,
 )
 
 from app.models.modelo import Modelo
@@ -37,14 +38,14 @@ def crear():
             modelos = request.form.getlist("modelos[]")
             # Se instancia la tarea
             case_id = init_process()
-            while ("Planificación de colección" not in get_ready_tasks(case_id)):
+            while "Planificación de colección" not in get_ready_tasks(case_id):
                 print("Cargando...")
             taskId = getUserTaskByName("Planificación de colección", case_id)
             # Se le asigna la tarea al usuario que creó la colección
             assign_task(taskId)
             # Se finaliza la tarea
             updateUserTask(taskId, "completed")
-            while ("Seleccionar fecha de lanzamiento" not in get_ready_tasks(case_id)):
+            while "Seleccionar fecha de lanzamiento" not in get_ready_tasks(case_id):
                 print("Cargando...")
             # Se asigna la tarea 'Seleccionar fecha de lanzamiento'
             taskId = getUserTaskByName("Seleccionar fecha de lanzamiento", case_id)
@@ -167,7 +168,9 @@ def modificar_fecha(id_coleccion):
                 # La variable materiales_fecha es false por lo que se vuelve al inicio
 
             # Si reprogramo porque no hay espacios
-            elif "Consultar espacio de fabricación" in get_ready_tasks(coleccion.case_id):
+            elif "Consultar espacio de fabricación" in get_ready_tasks(
+                coleccion.case_id
+            ):
                 print("REPROGRAMANDO XQ NO HAY ESPACIOS")
                 taskId = getUserTaskByName(
                     "Consultar espacio de fabricación",
@@ -179,15 +182,27 @@ def modificar_fecha(id_coleccion):
                 # La variable plazos_fabricacion es false por lo que se vuelve al inicio
 
             # Si reprogramo porque no llegaron los materiales
-            elif get_completed_tasks_by_name(coleccion.case_id, "Reservar espacio de fabricación") and "Elaborar plan de fabricación" not in get_ready_tasks(coleccion.case_id) and not get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación"):
+            elif (
+                get_completed_tasks_by_name(
+                    coleccion.case_id, "Reservar espacio de fabricación"
+                )
+                and "Elaborar plan de fabricación"
+                not in get_ready_tasks(coleccion.case_id)
+                and not get_completed_tasks_by_name(
+                    coleccion.case_id, "Elaborar plan de fabricación"
+                )
+            ):
                 print("REPROGRAMANDO XQ NO LLEGARON LOS MATERIALES")
                 set_bonita_variable(
-                    Coleccion.get_by_id(id_coleccion).case_id, "materiales_atrasados", "true", "java.lang.Boolean"
+                    Coleccion.get_by_id(id_coleccion).case_id,
+                    "materiales_atrasados",
+                    "true",
+                    "java.lang.Boolean",
                 )
                 # Seteo la variable materiales_atrasados para que se vuelva al inicio
             else:
                 flash("No se puede reprogramar en este momento", "error")
-                return redirect(url_for("home")) 
+                return redirect(url_for("home"))
 
             taskId = getUserTaskByName(
                 "Planificación de distribución",
@@ -198,8 +213,10 @@ def modificar_fecha(id_coleccion):
             updateUserTask(taskId, "completed")
             nueva_fecha = form.fecha_lanzamiento.data
             coleccion.modificar_lanzamiento(nueva_fecha)
-            while ("Seleccionar fecha de lanzamiento" not in get_ready_tasks(coleccion.case_id)):
-                    print("Cargando...")
+            while "Seleccionar fecha de lanzamiento" not in get_ready_tasks(
+                coleccion.case_id
+            ):
+                print("Cargando...")
             taskId = getUserTaskByName(
                 "Seleccionar fecha de lanzamiento", coleccion.case_id
             )
@@ -220,7 +237,7 @@ def modificar_fecha(id_coleccion):
 
 @login_required
 def planificar_fabricacion(id_coleccion):
-    form=FormAltaTarea()
+    form = FormAltaTarea()
     if session["current_rol"] == "Operaciones":
         coleccion = Coleccion.get_by_id(id_coleccion)
         tareas = Tarea.get_by_coleccion_id(id_coleccion)
@@ -228,11 +245,12 @@ def planificar_fabricacion(id_coleccion):
             "coleccion/planificar_fabricacion.html",
             coleccion=coleccion,
             tareas=tareas,
-            form=form
+            form=form,
         )
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))
+
 
 @login_required
 def administrar_tareas(id_coleccion):
@@ -240,13 +258,12 @@ def administrar_tareas(id_coleccion):
         coleccion = Coleccion.get_by_id(id_coleccion)
         tareas = Tarea.get_by_coleccion_id(id_coleccion)
         return render_template(
-            "coleccion/administrar_tareas.html",
-            coleccion=coleccion,
-            tareas=tareas
+            "coleccion/administrar_tareas.html", coleccion=coleccion, tareas=tareas
         )
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))
+
 
 @login_required
 def elaborar_plan(id_coleccion):
@@ -265,6 +282,7 @@ def elaborar_plan(id_coleccion):
         flash("No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))
 
+
 @login_required
 def nueva_distribucion(id_coleccion):
     if session["current_rol"] == "Comercial":
@@ -278,6 +296,7 @@ def nueva_distribucion(id_coleccion):
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))
+
 
 @login_required
 def planificar_distribucion(id_coleccion):
@@ -297,12 +316,15 @@ def planificar_distribucion(id_coleccion):
             updateUserTask(taskId, "completed")
             for index, c in enumerate(cantidades):
                 if int(c) > 0:
-                    Coleccion_sede.crear(id_coleccion, index+1, c, False)
+                    Coleccion_sede.crear(id_coleccion, index + 1, c, False)
             flash("La distribución se planificó con éxito", "success")
             return redirect(url_for("home"))
         else:
             sedes = Sede.sedes()
-            flash("No se cuenta con la cantidad de anteojos suficientes para distribuir", "error")
+            flash(
+                "No se cuenta con la cantidad de anteojos suficientes para distribuir",
+                "error",
+            )
             return render_template(
                 "coleccion/planificar_distribucion.html",
                 coleccion=coleccion,
@@ -311,6 +333,7 @@ def planificar_distribucion(id_coleccion):
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))
+
 
 @login_required
 def ver_lotes(id_coleccion):
@@ -325,6 +348,7 @@ def ver_lotes(id_coleccion):
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))
+
 
 @login_required
 def enviar_lote(id_lote):
@@ -352,3 +376,18 @@ def enviar_lote(id_lote):
         coleccion=coleccion,
         lotes=lotes,
     )
+
+
+@login_required
+def eliminar_coleccion(id_coleccion):
+    if session["current_rol"] == "Operaciones":
+        coleccion = Coleccion.get_by_id(id_coleccion)
+        deleteCase(coleccion.case_id)
+        Coleccion_sede.eliminar(id_coleccion)
+        Tarea.eliminar(id_coleccion)
+        Coleccion.eliminar(id_coleccion)
+        print("pase")
+        flash("Colección eliminada exitosamente", "success")
+    else:
+        flash("No tienes permiso para acceder a este sitio", "error")
+    return redirect(url_for("home"))

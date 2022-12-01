@@ -200,6 +200,19 @@ def modificar_fecha(id_coleccion):
                     "java.lang.Boolean",
                 )
                 # Seteo la variable materiales_atrasados para que se vuelva al inicio
+
+            # Si reprogramo porque no se cumplen los plazos
+            elif get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación") and "Asociar lotes con las órdenes de distribución" not in get_ready_tasks(coleccion.case_id):
+                print("REPROGRAMANDO XQ NO SE FABRICÓ A TIEMPO")
+                set_bonita_variable(
+                    Coleccion.get_by_id(id_coleccion).case_id,
+                    "reprogramación",
+                    "true",
+                    "java.lang.Boolean",
+                )
+                # Seteo la variable reprogramación para que se vuelva al inicio
+                Tarea.eliminar(id_coleccion)
+                # Elimino todas las tareas de la colección
             else:
                 flash("No se puede reprogramar en este momento", "error")
                 return redirect(url_for("home"))

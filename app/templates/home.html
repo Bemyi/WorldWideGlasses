@@ -203,6 +203,11 @@
                                         href="{{ url_for('reprogramar_coleccion', id_coleccion=coleccion.id) }}">Reprogramar
                                         Colección</a> 
                                 </td>    
+                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación") and "Asociar lotes con las órdenes de distribución" not in get_ready_tasks(coleccion.case_id) %}
+                                <td> <a class="btn btn-danger"
+                                        href="{{ url_for('reprogramar_coleccion', id_coleccion=coleccion.id) }}">Reprogramar
+                                        Colección</a> 
+                                </td>    
                                 {% else %}
                                 <td class="col-md-3"> Nada que hacer...</td>
                                 {% endif %}

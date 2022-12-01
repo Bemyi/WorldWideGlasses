@@ -38,3 +38,6 @@ class Modelo(db.Model, UserMixin):
 
     def get_by_name(name):
         return Modelo.query.filter_by(name=name).first()
+
+    def get_by_id(id):
+        return Modelo.query.filter_by(id=id).first()

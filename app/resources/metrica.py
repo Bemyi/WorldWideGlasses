@@ -12,10 +12,13 @@ def index():
     casosActivos = len(getActiveCases())
     casosCerrados = len(getClosedCases())
     cantidadDeColeccionesCreadas = len(Coleccion.get_all_colections())
-    modelosMasUsados = Coleccion.get_most_used_model()
+    modeloMasUsado = Coleccion.get_most_used_model()
+    cantModeloMasUsado = Coleccion.get_cant_most_used_model()
     return render_template(
         "metrica/index.html",
         casosActivos=casosActivos,
         casosCerrados=casosCerrados,
         cantidadDeColeccionesCreadas=cantidadDeColeccionesCreadas,
+        modeloMasUsado=modeloMasUsado,
+        cantModeloMasUsado=cantModeloMasUsado,
     )

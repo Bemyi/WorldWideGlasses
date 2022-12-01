@@ -5,6 +5,7 @@ from flask_login import UserMixin
 
 from app.models.modelo import Modelo
 from app.models.usuario import Usuario
+from sqlalchemy import text
 
 coleccion_tiene_modelo = db.Table(
     "coleccion_tiene_modelo",
@@ -128,9 +129,20 @@ class Coleccion(db.Model, UserMixin):
         return Coleccion.query.all()
 
     def get_most_used_model():
-        print(
-            (Coleccion.coleccion_tiene_modelo)
-            .query.count(Coleccion.coleccion_tiene_modelo.modelo_id)
-            .group_by(Coleccion.coleccion_tiene_modelo.modelo_id)
-            .first()
+        query = db.engine.execute(
+            text(
+                "SELECT modelo_id, COUNT(modelo_id) as total FROM coleccion_tiene_modelo GROUP BY modelo_id ORDER BY total desc LIMIT 1"
+            )
         )
+        modelo_id = [row[0] for row in query][0]
+        modelo = Modelo.get_by_id(modelo_id)
+        return modelo
+
+    def get_cant_most_used_model():
+        query = db.engine.execute(
+            text(
+                "SELECT COUNT(modelo_id) as total FROM coleccion_tiene_modelo GROUP BY modelo_id ORDER BY total desc LIMIT 1"
+            )
+        )
+        cant = [row[0] for row in query][0]
+        return cant

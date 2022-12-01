@@ -42,7 +42,7 @@ class Coleccion(db.Model, UserMixin):
     fecha_lanzamiento = db.Column(db.DateTime)
     fecha_entrega = db.Column(db.DateTime)
     materiales = db.Column(db.String(255), nullable=True)
-    tareas = db.relationship("Tarea", backref="coleccion", uselist=False)
+    tareas = db.relationship("Tarea", backref="coleccion", uselist=True)
     inicio_fabricacion = db.Column(db.DateTime, nullable=True)
     fin_fabricacion = db.Column(db.DateTime, nullable=True)
     created_on = db.Column(db.DateTime, server_default=db.func.now())

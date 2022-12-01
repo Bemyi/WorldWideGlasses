@@ -1,0 +1,112 @@
+{% extends "layout.html" %}
+{% block title %}Nueva colección{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category == "success" %}
+    <div class="alert alert-success alert-dismissible">
+        {{ message }} <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% else %}
+    <div class="alert alert-danger alert-dismissible">
+        {{ message }} <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Creación de tareas del plan de fabricación</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <div class="form-group row justify-content-center">
+                            <div class="col-md-10">
+                                <table class="table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th class="col align-self-center" colspan="4">
+                                                Fecha de entrega: {{coleccion.fin_fabricacion.strftime('%d-%m-%Y')}}</a>
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th class="col align-self-center" colspan="4">
+                                                Tareas
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <div class="col-md-3">
+                                                <td class="col-md-3">
+                                                    Nombre
+                                                </td>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <td class="col-md-3">
+                                                    Descripción
+                                                </td>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <td class="col-md-3">
+                                                    Fecha Límite
+                                                </td>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <td class="col-md-3">
+                                                    *
+                                                </td>
+                                            </div>
+                                        </tr>
+                                        {% if tareas %}
+                                            {% for tarea in tareas %}
+                                            <tr>
+                                                <div class="col-md-3">
+                                                    <td class="col-md-3">
+                                                        {{tarea.nombre}}
+                                                    </td>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <td class="col-md-3">
+                                                        {{tarea.descripcion}}
+                                                    </td>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <td class="col-md-3">
+                                                        {{tarea.fecha_limite.strftime('%d-%m-%Y')}}
+                                                    </td>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <td class="col-md-3">
+                                                        <a class="btn btn-danger" href="{{ url_for('finalizar_tarea', id_coleccion=coleccion.id, id_tarea=tarea.id) }}">
+                                                            Marcar como finalizada
+                                                        </a>
+                                                    </td>
+                                                </div>
+                                            </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr class="col-md-3" colspan="4">
+                                                <div class="col-md-3" colspan="4">
+                                                    <td class="col-md-3" colspan="4">
+                                                        No hay tareas cargadas.
+                                                    </td>
+                                                </div>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

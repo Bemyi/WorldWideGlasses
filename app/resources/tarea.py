@@ -44,3 +44,17 @@ def eliminar_tarea(id_coleccion, id_tarea):
     return render_template(
         "coleccion/planificar_fabricacion.html", coleccion=Coleccion.get_by_id(id_coleccion), tareas=tareas, form=form
     )
+
+@login_required
+def finalizar_tarea(id_coleccion, id_tarea):
+    if session["current_rol"] == "Operaciones":
+        tarea = Tarea.get_by_id(id_tarea)
+        tarea.finalizar()
+        flash("Tarea finalizada", "success")
+    else:
+        flash("No tienes permiso para acceder a este sitio", "error")
+    tareas = Tarea.tareas()
+    form = FormAltaTarea()
+    return render_template(
+        "coleccion/administrar_tareas.html", coleccion=Coleccion.get_by_id(id_coleccion), tareas=tareas, form=form
+    )

@@ -12,6 +12,7 @@ class Tarea(db.Model, UserMixin):
     descripcion = db.Column(db.String(255), unique=True)
     fecha_limite = db.Column(db.DateTime)
     coleccion_id = db.Column(db.Integer, db.ForeignKey("coleccion.id"), nullable=False)
+    finalizada = db.Column(db.Boolean)
     created_on = db.Column(db.DateTime, server_default=db.func.now())
     updated_on = db.Column(
         db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now()
@@ -22,12 +23,13 @@ class Tarea(db.Model, UserMixin):
         nombre,
         descripcion,
         fecha_limite,
-        coleccion_id
+        coleccion_id,
     ):
         self.nombre = nombre
         self.descripcion = descripcion
         self.fecha_limite = fecha_limite
-        self.coleccion_id = coleccion_id
+        self.coleccion_id = coleccion_id,
+        self.finalizada = False
 
     def crear(nombre, descripcion, fecha_limite, coleccion_id):
         """Crea una tarea"""
@@ -38,6 +40,11 @@ class Tarea(db.Model, UserMixin):
     def eliminar(self):
         """Elimina una tarea"""
         db.session.delete(self)
+        db.session.commit()
+
+    def finalizar(self):
+        """Elimina una tarea"""
+        self.finalizada = True
         db.session.commit()
 
     def tareas():

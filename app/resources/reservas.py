@@ -4,9 +4,16 @@ from flask_login import login_required, current_user
 import requests
 import json
 from app.models.coleccion import Coleccion
-from app.resources import coleccion
 from app.models.material import Material
 from datetime import datetime
+from app.helpers.bonita_api import (
+    get_user_id,
+    assign_task,
+    updateUserTask,
+    set_bonita_variable,
+    getUserTaskByName,
+    get_ready_tasks
+)
 
 # MATERIALES
 @login_required
@@ -90,7 +97,7 @@ def reservar_api_materiales(token, id_coleccion):
     URL = "http://127.0.0.1:8000/reservar_materiales"
     body = {
         "materials": eval(Coleccion.get_by_id(id_coleccion).materiales), #convierto el str a dict
-        "user_id": int(coleccion.get_user_id()),
+        "user_id": int(get_user_id()),
         "colection_id": int(id_coleccion),
     }
     headers = {"Content-Type": "application/json", "Authorization": "Bearer " + token}
@@ -134,20 +141,20 @@ def guardar_materiales(id_coleccion):
                     )
         print(json.dumps(listado))
         Coleccion.get_by_id(id_coleccion).save_materials(str(json.dumps(listado)))
-        coleccion.set_bonita_variable(
+        set_bonita_variable(
             Coleccion.get_by_id(id_coleccion).case_id,
             "materiales_fecha",
             "true",
             "java.lang.Boolean",
         )
-        time.sleep(5)
-        taskId = coleccion.getUserTaskByName(
+        while ("Consulta de materiales a la API" not in get_ready_tasks(Coleccion.get_by_id(id_coleccion).case_id)):
+            print("Cargando...")
+        taskId = getUserTaskByName(
             "Consulta de materiales a la API", Coleccion.get_by_id(id_coleccion).case_id
         )
-        coleccion.assign_task(taskId)
+        assign_task(taskId)
         # Se finaliza la tarea
-        coleccion.updateUserTask(taskId, "completed")
-        time.sleep(5)
+        updateUserTask(taskId, "completed")
         flash("Materiales guardados!", "success")
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
@@ -157,14 +164,15 @@ def guardar_materiales(id_coleccion):
 def recibir_materiales(id_coleccion):
     if session["current_rol"] == "Operaciones":
         # Seteo la variable de bonita materiales_disponibles
-        coleccion.set_bonita_variable(
+        set_bonita_variable(
             Coleccion.get_by_id(id_coleccion).case_id, "materiales_disponibles", "true", "java.lang.Boolean"
         )
         flash("Materiales recibidos!", "success")
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
     # doy tiempo a que avance el proceso
-    time.sleep(5)
+    while ("Elaborar plan de fabricación" not in get_ready_tasks(Coleccion.get_by_id(id_coleccion).case_id)):
+        print("Cargando...")
     return redirect(url_for("home"))
 
 # ESPACIOS
@@ -173,37 +181,44 @@ def reservar_espacio(id_coleccion):
     """Se reserva un espacio"""
     if session["current_rol"] == "Operaciones":
         case_id = Coleccion.get_by_id(id_coleccion).case_id
-        time.sleep(5)
-        taskId = coleccion.getUserTaskByName(
+        # Seteo la variable de bonita materiales_atrasados
+        set_bonita_variable(
+                case_id, "materiales_atrasados", "false", "java.lang.Boolean"
+            )
+        while ("Consultar espacio de fabricación" not in get_ready_tasks(Coleccion.get_by_id(id_coleccion).case_id)):
+            print("Cargando...")
+        taskId = getUserTaskByName(
             "Consultar espacio de fabricación",
             case_id,
         )
         # Seteo la variable de bonita plazos_fabricacion
-        coleccion.set_bonita_variable(
+        set_bonita_variable(
             case_id, "plazos_fabricacion", "true", "java.lang.Boolean"
         )
-        coleccion.assign_task(taskId)
+        assign_task(taskId)
         # Se finaliza la tarea
-        coleccion.updateUserTask(taskId, "completed")
+        updateUserTask(taskId, "completed")
 
         # Reservo los materiales guardados (si es que no los tengo, eso lo chequea bonita automaticamente con la variable "materiales_disponibles")
-        time.sleep(5)
-        taskId = coleccion.getUserTaskByName(
+        while ("Reservar materiales" not in get_ready_tasks(Coleccion.get_by_id(id_coleccion).case_id)):
+            print("Cargando...")
+        taskId = getUserTaskByName(
             "Reservar materiales",
             case_id,
         )
-        coleccion.assign_task(taskId)
+        assign_task(taskId)
         token = login_api_materiales()
         reservar_api_materiales(token, id_coleccion)
         # Se finaliza la tarea
-        coleccion.updateUserTask(taskId, "completed")
+        updateUserTask(taskId, "completed")
 
-        time.sleep(5)
-        taskId = coleccion.getUserTaskByName(
+        while ("Reservar espacio de fabricación" not in get_ready_tasks(Coleccion.get_by_id(id_coleccion).case_id)):
+            print("Cargando...")
+        taskId = getUserTaskByName(
             "Reservar espacio de fabricación",
             case_id,
         )
-        coleccion.assign_task(taskId)
+        assign_task(taskId)
         token = login_api_espacios()
         space_id = int(request.form.get("espacio"))
         espacio = reservar_api_espacios(token, space_id, id_coleccion)
@@ -212,7 +227,7 @@ def reservar_espacio(id_coleccion):
         print(espacio["end_date"])
         Coleccion.get_by_id(id_coleccion).save_espacio_fabricacion(espacio["start_date"], espacio["end_date"])
         # Se finaliza la tarea
-        coleccion.updateUserTask(taskId, "completed")
+        updateUserTask(taskId, "completed")
         
         #Borro los materiales guardados de la colección
         Coleccion.get_by_id(id_coleccion).delete_materials()
@@ -254,7 +269,7 @@ def reservar_api_espacios(token, space_id, id_coleccion):
     URL = "http://127.0.0.1:7000/reservar_espacio"
     body = {
         "space_id": space_id,
-        "user_id": int(coleccion.get_user_id()),
+        "user_id": int(get_user_id()),
         "colection_id": int(id_coleccion),
     }
     headers = {"Content-Type": "application/json", "Authorization": "Bearer " + token}
@@ -285,9 +300,6 @@ def seleccionar_espacio(id_coleccion):
                 fecha_actual=datetime.now()
             )
         else:
-            coleccion.set_bonita_variable(
-                case_id, "plazos_fabricacion", "false", "java.lang.Boolean"
-            )
             flash("No hay espacios disponibles", "error")
             return redirect(url_for("home"))
     flash("No tienes permiso para acceder a este sitio", "error")

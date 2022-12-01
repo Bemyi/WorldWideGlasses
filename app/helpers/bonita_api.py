@@ -123,7 +123,7 @@ def getUserTaskByName(taskName, caseId):
     requestSession = requests.Session()
     URL = "http://localhost:8080/bonita/API/bpm/userTask"
     headers = getBonitaHeaders()
-    params = {"s": taskName, "caseId": caseId}
+    params = {"f": "name="+taskName, "caseId": caseId}
     response = requestSession.get(URL, headers=headers, params=params)
     print("Response del get user task:")
     print(response)
@@ -144,7 +144,10 @@ def get_ready_tasks(case_id):
     params = {}
     response = requestSession.get(URL, headers=headers, params=params)
     print("Response del get tareas ready:")
-    tareas = [task["name"] for task in response.json()]
+    tareas = []
+    print(response.status_code)
+    if response.status_code == 200:
+        tareas = [task["name"] for task in response.json()]
     print(tareas)
     return tareas
 
@@ -152,7 +155,7 @@ def get_ready_tasks(case_id):
 def get_completed_tasks_by_name(case_id, name):
     requestSession = requests.Session()
     URL = (
-        "http://localhost:8080/bonita/API/bpm/archivedFlowNode?p=0&c=10&f=caseId%3d"
+        "http://localhost:8080/bonita/API/bpm/archivedFlowNode?p=0&c=1&f=caseId%3d"
         + str(case_id)
         + "&f=state%3dcompleted&f=name%3d"
         + name
@@ -161,7 +164,10 @@ def get_completed_tasks_by_name(case_id, name):
     params = {}
     response = requestSession.get(URL, headers=headers, params=params)
     print("Response del get tareas completed:")
-    tareas = [task["name"] for task in response.json()]
+    tareas = []
+    print(response.status_code)
+    if response.status_code == 200:
+        tareas = [task["name"] for task in response.json()]
     print(tareas)
     return tareas
 

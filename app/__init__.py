@@ -112,6 +112,11 @@ def create_app(test_config=None):
         coleccion.elaborar_plan,
         methods=["POST"],
     )
+    app.add_url_rule(
+        "/coleccion/<id_coleccion>/administrar_tareas",
+        "administrar_tareas",
+        coleccion.administrar_tareas,
+    )
 
     # Ruta de tareas
     app.add_url_rule(
@@ -126,6 +131,13 @@ def create_app(test_config=None):
         tarea.eliminar_tarea,
         methods=["GET", "DELETE"],
     )
+    app.add_url_rule(
+        "/coleccion/<id_coleccion>/<id_tarea>/finalizar",
+        "finalizar_tarea",
+        tarea.finalizar_tarea,
+        methods=["POST"],
+    )
+    
 
     # Ruta de materiales
     app.add_url_rule(

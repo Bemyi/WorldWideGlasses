@@ -25,9 +25,7 @@
             <div class="card">
                 <div class="card-header">Creación de tareas del plan de fabricación</div>
                 <div class="card-body">
-                    <form class="form" method="POST"
-                        action="{{ url_for('elaborar_plan', id_coleccion=coleccion.id) }}">
-
+                    <form class="form" method="POST" action="{{ url_for('elaborar_plan', id_coleccion=coleccion.id) }}">
                         <div class="form-group">
                             <div class="form-group row justify-content-center">
                                 <div class="col-md-10">
@@ -116,7 +114,6 @@
                             <div class="form-group row justify-content-center">
                                 <div class="col-md-10">
                                     <button type="submit" class="btn btn-primary">Finalizar planificación</button>
-                                    <button type="reset" class="btn btn-primary">Limpiar</button>
                                 </div>
                             </div>
                     </form>

@@ -2,6 +2,7 @@
 {% block title %}Asignación de lotes{% endblock %}
 {% block head %}
 {{ super() }}
+<script src="{{ url_for('static', filename='js/formulario_enviar.js')}}" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 <div class="container">
@@ -73,10 +74,12 @@
                                             <div class="col-md-3">
                                                 <td class="col-md-3">
                                                     {% if not lote.entregado %}
-                                                    <a class="btn btn-success"
-                                                        href="{{ url_for('enviar_lote', id_lote=lote.id) }}">
-                                                        Enviar
-                                                    </a>
+                                                    <form method="POST"
+                                                        action="{{ url_for('enviar_lote', id_lote=lote.id) }}"
+                                                        class="formulario-enviar" style="display: inline;">
+                                                        <input class="btn btn-success btn-sm" type="submit"
+                                                            value="Enviar">
+                                                    </form>
                                                     {% endif %}
                                                 </td>
                                             </div>

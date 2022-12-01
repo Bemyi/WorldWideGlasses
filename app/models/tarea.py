@@ -9,7 +9,7 @@ class Tarea(db.Model, UserMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(255), unique=True)
-    descripcion = db.Column(db.String(255), unique=True)
+    descripcion = db.Column(db.String(255))
     fecha_limite = db.Column(db.DateTime)
     coleccion_id = db.Column(db.Integer, db.ForeignKey("coleccion.id"), nullable=False)
     finalizada = db.Column(db.Boolean)

@@ -29,7 +29,7 @@ def crear_tarea(id_coleccion):
             flash("Hay errores en los campos de la tarea", "error")
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
-    tareas = Tarea.tareas()
+    tareas = Tarea.get_by_coleccion_id(id_coleccion)
     return render_template(
         "coleccion/planificar_fabricacion.html", coleccion=coleccion, tareas=tareas, form=form
     )
@@ -42,7 +42,7 @@ def eliminar_tarea(id_coleccion, id_tarea):
         flash("Tarea eliminada", "success")
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
-    tareas = Tarea.tareas()
+    tareas = Tarea.get_by_coleccion_id(id_coleccion)
     form = FormAltaTarea()
     return render_template(
         "coleccion/planificar_fabricacion.html", coleccion=Coleccion.get_by_id(id_coleccion), tareas=tareas, form=form
@@ -66,7 +66,7 @@ def finalizar_tarea(id_coleccion, id_tarea):
             flash("Tarea finalizada", "success")
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
-    tareas = Tarea.tareas()
+    tareas = Tarea.get_by_coleccion_id(id_coleccion)
     form = FormAltaTarea()
     return render_template(
         "coleccion/administrar_tareas.html", coleccion=Coleccion.get_by_id(id_coleccion), tareas=tareas, form=form

@@ -131,7 +131,7 @@ def create_app(test_config=None):
         "/coleccion/<id_coleccion>/<id_tarea>/eliminar",
         "eliminar_tarea",
         tarea.eliminar_tarea,
-        methods=["GET", "DELETE"],
+        methods=["GET", "POST", "DELETE"],
     )
     app.add_url_rule(
         "/coleccion/<id_coleccion>/<id_tarea>/finalizar",
@@ -202,6 +202,7 @@ def create_app(test_config=None):
         "/coleccion/<id_lote>/enviar_lote",
         "enviar_lote",
         coleccion.enviar_lote,
+        methods=["GET", "POST"],
     )
 
     # Ruta de tipo

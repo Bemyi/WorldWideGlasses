@@ -7,6 +7,10 @@ from app.models.tarea import Tarea
 from app.models.coleccion import Coleccion
 from app.form.tarea.alta_tarea import FormAltaTarea
 from datetime import datetime
+from app.helpers.bonita_api import(
+    set_bonita_variable
+)
+
 
 @login_required
 def crear_tarea(id_coleccion):
@@ -16,7 +20,6 @@ def crear_tarea(id_coleccion):
         form.fin_fabricacion = coleccion.fin_fabricacion
         form.id_coleccion = id_coleccion
         if  form.validate_on_submit():
-            print("validó")
             nombre = form.nombre.data
             descripcion = form.descripcion.data
             fecha_limite = form.fecha_limite.data
@@ -50,7 +53,17 @@ def finalizar_tarea(id_coleccion, id_tarea):
     if session["current_rol"] == "Operaciones":
         tarea = Tarea.get_by_id(id_tarea)
         tarea.finalizar()
-        flash("Tarea finalizada", "success")
+        if Tarea.coleccion_finalizada(id_coleccion):
+            set_bonita_variable(
+                    Coleccion.get_by_id(id_coleccion).case_id, "tareas_terminadas", "true", "java.lang.Boolean"
+            )
+            set_bonita_variable(
+                    Coleccion.get_by_id(id_coleccion).case_id, "coleccion_fabricada", "true", "java.lang.Boolean"
+            )
+            flash("Tareas finalizadas", "success")
+            return redirect(url_for("home"))
+        else:
+            flash("Tarea finalizada", "success")
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
     tareas = Tarea.tareas()

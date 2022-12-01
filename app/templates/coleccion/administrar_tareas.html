@@ -60,7 +60,7 @@
                                             </div>
                                             <div class="col-md-3">
                                                 <td class="col-md-3">
-                                                    *
+                                                    
                                                 </td>
                                             </div>
                                         </tr>
@@ -84,9 +84,13 @@
                                                 </div>
                                                 <div class="col-md-3">
                                                     <td class="col-md-3">
-                                                        <a class="btn btn-danger" href="{{ url_for('finalizar_tarea', id_coleccion=coleccion.id, id_tarea=tarea.id) }}">
+                                                        {% if not tarea.finalizada %}
+                                                        <a class="btn btn-success" href="{{ url_for('finalizar_tarea', id_coleccion=coleccion.id, id_tarea=tarea.id) }}">
                                                             Marcar como finalizada
                                                         </a>
+                                                        {% else %}
+                                                            Tarea finalizada
+                                                        {% endif %}
                                                     </td>
                                                 </div>
                                             </tr>

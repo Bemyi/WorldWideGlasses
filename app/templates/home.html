@@ -21,7 +21,7 @@
     {% endif %}
     {% endwith %}
     <div class="row justify-content-center">
-        <div class="col-md-10">
+        <div class="col-md-16">
             <div class="card align-self-center">
                 <div class="card-header">Colecciones</div>
                 <div class="card-body">
@@ -131,18 +131,11 @@
                                         href="{{ url_for('seleccionar_espacio', id_coleccion=coleccion.id) }}">Seleccionar
                                         espacio de fabricación</a>
                                 </td>
-                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Reservar espacio de fabricación") and not get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación") %}
+                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Reservar espacio de fabricación") and "Elaborar plan de fabricación" not in get_ready_tasks(coleccion.case_id) and not get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación") %}
                                 <td class="col-md-3">
                                     <a class="btn btn-success"
                                         href="{{ url_for('recibir_materiales', id_coleccion=coleccion.id) }}">Marcar
                                         materiales como recibidos</a>
-                                </td>
-                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación") %}
-                                <td class="col-md-3">
-                                    <a class="btn btn-success"
-                                        href="{{ url_for('administrar_tareas', id_coleccion=coleccion.id) }}">
-                                        Ver tareas
-                                    </a>
                                 </td>
                                 {% else %}
                                 <td class="col-md-3"> Nada que hacer...</td>
@@ -178,6 +171,13 @@
                                         href="{{ url_for('planificar_fabricacion', id_coleccion=coleccion.id) }}">Elaborar
                                         plan de fabricación</a>
                                 </td>
+                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación") %}
+                                <td class="col-md-3">
+                                    <a class="btn btn-primary"
+                                        href="{{ url_for('administrar_tareas', id_coleccion=coleccion.id) }}">
+                                        Ver tareas
+                                    </a>
+                                </td>
                                 {% else %}
                                 <td class="col-md-3"> Nada que hacer...</td>
                                 {% endif %}
@@ -193,8 +193,7 @@
                                     <a class="btn btn-primary"
                                         href="{{ url_for('nueva_distribucion', id_coleccion=coleccion.id) }}">Planificar</a>
                                 </td>
-                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Planificación de distribución")
-                                %}
+                                {% elif "Asociar lotes con las órdenes de distribución" in get_ready_tasks(coleccion.case_id) %}
                                 <td class="col-md-3">
                                     <a class="btn btn-primary"
                                         href="{{ url_for('ver_lotes', id_coleccion=coleccion.id) }}">Ver lotes</a>
@@ -217,7 +216,7 @@
         </div>
         <br>
         {% if session["current_rol"] == "Creativa" %}
-        <div class="col-md-10 justify-content-center">
+        <div class="col-md-16">
             <a class="btn btn-primary" href="{{ url_for('nueva_coleccion') }}" role="button">Crear colección</a>
         </div>
         {% endif %}

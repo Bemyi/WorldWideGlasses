@@ -51,3 +51,9 @@ class Coleccion_sede(db.Model, UserMixin):
     def enviar(self):
         self.entregado = True
         db.session.commit()
+
+    def lotes_enviados(id_coleccion):
+        lotes = Coleccion_sede.query.filter_by(id_coleccion=id_coleccion, entregado=False).all()
+        print("LOTES ENVIADOS!!")
+        print(lotes)
+        return len(lotes) == 0

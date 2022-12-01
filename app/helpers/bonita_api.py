@@ -113,7 +113,7 @@ def set_bonita_variable(case_id, variable_name, variable_value, type):
     response = requestSession.get(URL, headers=headers)
     print("Response al hacer get de variable bonita:")
     print(response)
-    print("Valor de la variable coleccion_id:")
+    print("Valor de la variable:")
     print(response.json()["value"])
 
 

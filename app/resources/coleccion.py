@@ -179,7 +179,7 @@ def modificar_fecha(id_coleccion):
                 # La variable plazos_fabricacion es false por lo que se vuelve al inicio
 
             # Si reprogramo porque no llegaron los materiales
-            elif get_completed_tasks_by_name(coleccion.case_id, "Reservar espacio de fabricación") and not get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación"):
+            elif get_completed_tasks_by_name(coleccion.case_id, "Reservar espacio de fabricación") and "Elaborar plan de fabricación" not in get_ready_tasks(coleccion.case_id) and not get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación"):
                 print("REPROGRAMANDO XQ NO LLEGARON LOS MATERIALES")
                 set_bonita_variable(
                     Coleccion.get_by_id(id_coleccion).case_id, "materiales_atrasados", "true", "java.lang.Boolean"
@@ -220,13 +220,15 @@ def modificar_fecha(id_coleccion):
 
 @login_required
 def planificar_fabricacion(id_coleccion):
+    form=FormAltaTarea()
     if session["current_rol"] == "Operaciones":
         coleccion = Coleccion.get_by_id(id_coleccion)
         tareas = Tarea.get_by_coleccion_id(id_coleccion)
         return render_template(
             "coleccion/planificar_fabricacion.html",
             coleccion=coleccion,
-            tareas=tareas
+            tareas=tareas,
+            form=form
         )
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
@@ -286,7 +288,6 @@ def planificar_distribucion(id_coleccion):
         for c in cantidades:
             cant = cant + int(c)
         if cant <= coleccion.cantidad_lentes:
-            time.sleep(5)
             taskId = getUserTaskByName(
                 "Planificación de distribución",
                 coleccion.case_id,
@@ -301,7 +302,7 @@ def planificar_distribucion(id_coleccion):
             return redirect(url_for("home"))
         else:
             sedes = Sede.sedes()
-            flash("No se cuenta con la cantidad de lotes suficientes para distribuir", "error")
+            flash("No se cuenta con la cantidad de anteojos suficientes para distribuir", "error")
             return render_template(
                 "coleccion/planificar_distribucion.html",
                 coleccion=coleccion,
@@ -328,12 +329,23 @@ def ver_lotes(id_coleccion):
 @login_required
 def enviar_lote(id_lote):
     lote = Coleccion_sede.get_by_id(id_lote)
+    coleccion = Coleccion.get_by_id(lote.id_coleccion)
     if session["current_rol"] == "Comercial":
         lote.enviar()
-        flash("Se realizo el envío con éxito", "success")
+        if Coleccion_sede.lotes_enviados(coleccion.id):
+            taskId = getUserTaskByName(
+                "Asociar lotes con las órdenes de distribución",
+                coleccion.case_id,
+            )
+            assign_task(taskId)
+            # Se finaliza la tarea
+            updateUserTask(taskId, "completed")
+            flash("Lotes enviados!", "success")
+            return redirect(url_for("home"))
+        else:
+            flash("Se realizo el envío con éxito", "success")
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
-    coleccion = Coleccion.get_by_id(lote.id_coleccion)
     lotes = Coleccion_sede.get_by_id_coleccion(lote.id_coleccion)
     return render_template(
         "coleccion/ver_lotes.html",

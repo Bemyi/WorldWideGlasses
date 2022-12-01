@@ -137,7 +137,7 @@ def create_app(test_config=None):
         "/coleccion/<id_coleccion>/<id_tarea>/finalizar",
         "finalizar_tarea",
         tarea.finalizar_tarea,
-        methods=["POST"],
+        methods=["GET", "POST"],
     )
     
 

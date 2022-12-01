@@ -62,3 +62,11 @@ class Tarea(db.Model, UserMixin):
 
     def get_by_coleccion_id(coleccion_id):
         return Tarea.query.filter_by(coleccion_id=coleccion_id).all()
+
+    def coleccion_finalizada(id_coleccion):
+        tareas = Tarea.query.filter_by(coleccion_id=id_coleccion, finalizada=False).all()
+        print("TAREAS FINALIZADAS!!")
+        print(tareas)
+        return len(tareas) == 0
+
+

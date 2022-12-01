@@ -23,7 +23,11 @@
     <div class="row justify-content-center">
         <div class="col-md-16">
             <div class="card align-self-center">
-                <div class="card-header">Colecciones</div>
+                <div class="card-header">Colecciones
+                    {% if session["current_rol"] == "Creativa" %}
+                        <a class="badge badge-pill badge-primary" href="{{ url_for('nueva_coleccion') }}" role="button">Nueva</a>
+                    {% endif %}
+                </div>
                 <div class="card-body">
                     <table class="table">
                         <thead class="thead-light">
@@ -43,18 +47,22 @@
                                 <th class="col-md-3">
                                     Modelos
                                 </th>
+                                {% if session["current_rol"] == "Operaciones" %}
                                 <th class="col-md-3">
                                     Reservas
                                 </th>
                                 <th class="col-md-3">
-                                    Reprogramación
-                                </th>
-                                <th class="col-md-3">
                                     Fabricación
                                 </th>
+                                {% elif session["current_rol"] == "Comercial" %}
                                 <th class="col-md-3">
                                     Distribución
                                 </th>
+                                {% elif session["current_rol"] == "Creativa" %}
+                                <th class="col-md-3">
+                                    Reprogramación
+                                </th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -140,28 +148,6 @@
                                 {% else %}
                                 <td class="col-md-3"> Nada que hacer...</td>
                                 {% endif %}
-                                {% else %}
-                                <td class="col-md-3">
-                                    No tienes permisos para manejar las reservas.
-                                </td>
-                                {% endif %}
-
-                                {% if session["current_rol"] == "Creativa" %}
-                                {% if "Consulta de materiales a la API" in get_ready_tasks(coleccion.case_id) or "Consultar espacio de fabricación" in get_ready_tasks(coleccion.case_id) %}
-                                <td> <a class="btn btn-danger"
-                                        href="{{ url_for('reprogramar_coleccion', id_coleccion=coleccion.id) }}">Reprogramar
-                                        Colección</a> 
-                                </td>
-                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Reservar espacio de fabricación") and "Elaborar plan de fabricación" not in get_ready_tasks(coleccion.case_id) %}
-                                <td> <a class="btn btn-danger"
-                                        href="{{ url_for('reprogramar_coleccion', id_coleccion=coleccion.id) }}">Reprogramar
-                                        Colección</a> 
-                                </td>    
-                                {% else %}
-                                <td class="col-md-3"> Nada que hacer...</td>
-                                {% endif %}
-                                {% else %}
-                                <td class="col-md-3"> No tienes permisos para reprogramar. </td>
                                 {% endif %}
 
                                 {% if session["current_rol"] == "Operaciones" %}
@@ -181,10 +167,6 @@
                                 {% else %}
                                 <td class="col-md-3"> Nada que hacer...</td>
                                 {% endif %}
-                                {% else %}
-                                <td class="col-md-3">
-                                    No tienes permisos para administrar la fabricación.
-                                </td>
                                 {% endif %}
 
                                 {% if session["current_rol"] == "Comercial" %}
@@ -201,10 +183,22 @@
                                 {% else %}
                                 <td class="col-md-3"> Nada que hacer...</td>
                                 {% endif %}
-                                {% else %}
-                                <td class="col-md-3">
-                                    No tienes permisos para administrar la distribución.
+                                {% endif %}
+
+                                {% if session["current_rol"] == "Creativa" %}
+                                {% if "Consulta de materiales a la API" in get_ready_tasks(coleccion.case_id) or "Consultar espacio de fabricación" in get_ready_tasks(coleccion.case_id) %}
+                                <td> <a class="btn btn-danger"
+                                        href="{{ url_for('reprogramar_coleccion', id_coleccion=coleccion.id) }}">Reprogramar
+                                        Colección</a> 
                                 </td>
+                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Reservar espacio de fabricación") and "Elaborar plan de fabricación" not in get_ready_tasks(coleccion.case_id) %}
+                                <td> <a class="btn btn-danger"
+                                        href="{{ url_for('reprogramar_coleccion', id_coleccion=coleccion.id) }}">Reprogramar
+                                        Colección</a> 
+                                </td>    
+                                {% else %}
+                                <td class="col-md-3"> Nada que hacer...</td>
+                                {% endif %}
                                 {% endif %}
 
                             </tr>
@@ -214,12 +208,6 @@
                 </div>
             </div>
         </div>
-        <br>
-        {% if session["current_rol"] == "Creativa" %}
-        <div class="col-md-16">
-            <a class="btn btn-primary" href="{{ url_for('nueva_coleccion') }}" role="button">Crear colección</a>
-        </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

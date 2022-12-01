@@ -11,11 +11,15 @@
     {% for category, message in messages %}
     {% if category == "success" %}
     <div class="alert alert-success alert-dismissible">
-        {{ message }} <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+        <strong>{{ message }}</strong>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
     </div>
     {% else %}
     <div class="alert alert-danger alert-dismissible">
-        {{ message }} <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+        <strong>{{ message }}</strong>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
     </div>
     {% endif %}
     {% endfor %}
@@ -80,6 +84,8 @@
                                                         <input class="btn btn-success btn-sm" type="submit"
                                                             value="Enviar">
                                                     </form>
+                                                    {% else %}
+                                                        <h6 style="color: green;">Lote enviado!</h6>  
                                                     {% endif %}
                                                 </td>
                                             </div>

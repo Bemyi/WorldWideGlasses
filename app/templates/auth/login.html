@@ -10,11 +10,25 @@
             <div class="card">
                 <div class="card-header">Iniciar Sesión</div>
                 <div class="card-body">
-                    {% with messages = get_flashed_messages() %} {% if messages %}
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    {% if category == "success" %}
                     <div class="alert alert-success alert-dismissible">
-                        {{ messages[0] }}
+                        <strong>{{ message }}</strong>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
                     </div>
-                    {% endif %} {% endwith %}
+                    {% else %}
+                    <div class="alert alert-danger alert-dismissible">
+                        <strong>{{ message }}</strong>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
                     <form method="POST" action="/login">
                         <div class="form-group row justify-content-center">
                             <label class="col-md-6 col-form-label text-md-left" for="email">Email</label>

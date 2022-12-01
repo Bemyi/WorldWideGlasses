@@ -182,16 +182,7 @@ def modificar_fecha(id_coleccion):
                 # La variable plazos_fabricacion es false por lo que se vuelve al inicio
 
             # Si reprogramo porque no llegaron los materiales
-            elif (
-                get_completed_tasks_by_name(
-                    coleccion.case_id, "Reservar espacio de fabricación"
-                )
-                and "Elaborar plan de fabricación"
-                not in get_ready_tasks(coleccion.case_id)
-                and not get_completed_tasks_by_name(
-                    coleccion.case_id, "Elaborar plan de fabricación"
-                )
-            ):
+            elif get_completed_tasks_by_name(coleccion.case_id, "Reservar espacio de fabricación") and "Elaborar plan de fabricación" not in get_ready_tasks(coleccion.case_id) and not get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación"):
                 print("REPROGRAMANDO XQ NO LLEGARON LOS MATERIALES")
                 set_bonita_variable(
                     Coleccion.get_by_id(id_coleccion).case_id,
@@ -202,7 +193,7 @@ def modificar_fecha(id_coleccion):
                 # Seteo la variable materiales_atrasados para que se vuelva al inicio
 
             # Si reprogramo porque no se cumplen los plazos
-            elif get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación") and "Asociar lotes con las órdenes de distribución" not in get_ready_tasks(coleccion.case_id):
+            elif get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación") and "Asociar lotes con las órdenes de distribución" not in get_ready_tasks(coleccion.case_id) and not get_completed_tasks_by_name(coleccion.case_id, "Asociar lotes con las órdenes de distribución"):
                 print("REPROGRAMANDO XQ NO SE FABRICÓ A TIEMPO")
                 set_bonita_variable(
                     Coleccion.get_by_id(id_coleccion).case_id,
@@ -211,7 +202,7 @@ def modificar_fecha(id_coleccion):
                     "java.lang.Boolean",
                 )
                 # Seteo la variable reprogramación para que se vuelva al inicio
-                Tarea.eliminar(id_coleccion)
+                Tarea.eliminar_todas(id_coleccion)
                 # Elimino todas las tareas de la colección
             else:
                 flash("No se puede reprogramar en este momento", "error")
@@ -229,7 +220,7 @@ def modificar_fecha(id_coleccion):
             while "Seleccionar fecha de lanzamiento" not in get_ready_tasks(
                 coleccion.case_id
             ):
-                print("Cargando...")
+                print("Cargando SELECCIONAR FECHA...")
             taskId = getUserTaskByName(
                 "Seleccionar fecha de lanzamiento", coleccion.case_id
             )
@@ -241,7 +232,7 @@ def modificar_fecha(id_coleccion):
             while "Consulta de materiales a la API" not in get_ready_tasks(
                 coleccion.case_id
             ):
-                print("Cargando...")
+                print("Cargando CONSULTA MATERIALES...")
             return redirect(url_for("home"))
         else:
             return render_template(
@@ -401,7 +392,7 @@ def eliminar_coleccion(id_coleccion):
         coleccion = Coleccion.get_by_id(id_coleccion)
         deleteCase(coleccion.case_id)
         Coleccion_sede.eliminar(id_coleccion)
-        Tarea.eliminar(id_coleccion)
+        Tarea.eliminar_todas(id_coleccion)
         Coleccion.eliminar(id_coleccion)
         print("pase")
         flash("Colección eliminada exitosamente", "success")

@@ -71,7 +71,7 @@ class Tarea(db.Model, UserMixin):
         print(tareas)
         return len(tareas) == 0
 
-    def eliminar(coleccion_id):
+    def eliminar_todas(coleccion_id):
         lista = Tarea.query.filter_by(coleccion_id=coleccion_id).all()
         for l in lista:
             db.session.delete(l)

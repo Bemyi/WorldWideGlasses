@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+{% block title %}Asignación de lotes{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category == "success" %}
+    <div class="alert alert-success alert-dismissible">
+        {{ message }} <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% else %}
+    <div class="alert alert-danger alert-dismissible">
+        {{ message }} <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Asignación de lotes</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <div class="form-group row justify-content-center">
+                            <div class="col-md-10">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <div class="col-md-3">
+                                                <td class="col-md-3">
+                                                    Sede
+                                                </td>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <td class="col-md-3">
+                                                    Cantidad
+                                                </td>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <td class="col-md-3">
+                                                    Estado
+                                                </td>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <td class="col-md-3">
+                                                    *
+                                                </td>
+                                            </div>
+                                        </tr>
+                                        {% if lotes %}
+                                        {% for lote in lotes %}
+                                        <tr>
+                                            <div class="col-md-3">
+                                                <td class="col-md-3">
+                                                    {{lote.sede.name}}
+                                                </td>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <td class="col-md-3">
+                                                    {{lote.cantidad_lotes}}
+                                                </td>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <td class="col-md-3">
+                                                    {{lote.estado()}}
+                                                </td>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <td class="col-md-3">
+                                                    {% if not lote.entregado %}
+                                                    <a class="btn btn-success"
+                                                        href="{{ url_for('enviar_lote', id_lote=lote.id) }}">
+                                                        Enviar
+                                                    </a>
+                                                    {% endif %}
+                                                </td>
+                                            </div>
+                                        </tr>
+                                        {% endfor %}
+                                        {% else %}
+                                        <tr class="col-md-3" colspan="4">
+                                            <div class="col-md-3" colspan="4">
+                                                <td class="col-md-3" colspan="4">
+                                                    No hay lotes para asignar.
+                                                </td>
+                                            </div>
+                                        </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock %}

@@ -5,6 +5,7 @@ from flask_login import UserMixin
 
 from app.models.modelo import Modelo
 from app.models.usuario import Usuario
+from sqlalchemy import text
 
 coleccion_tiene_modelo = db.Table(
     "coleccion_tiene_modelo",
@@ -39,6 +40,7 @@ class Coleccion(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     case_id = db.Column(db.Integer)
     name = db.Column(db.String(255), unique=True)
+    cantidad_lentes = db.Column(db.Integer)
     fecha_lanzamiento = db.Column(db.DateTime)
     fecha_entrega = db.Column(db.DateTime)
     materiales = db.Column(db.String(255), nullable=True)
@@ -49,6 +51,8 @@ class Coleccion(db.Model, UserMixin):
     updated_on = db.Column(
         db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now()
     )
+    coleccion_sede = db.relationship("Coleccion_sede", backref="coleccion", uselist=False)
+
     # relacion Many-to-Many
     coleccion_tiene_modelo = db.relationship(
         "Modelo",
@@ -65,10 +69,11 @@ class Coleccion(db.Model, UserMixin):
     )
 
     def __init__(
-        self, case_id, name, fecha_lanzamiento, fecha_entrega, usuarios, modelos
+        self, case_id, name, cantidad_lentes, fecha_lanzamiento, fecha_entrega, usuarios, modelos
     ):
         self.case_id = case_id
         self.name = name
+        self.cantidad_lentes = cantidad_lentes
         self.fecha_lanzamiento = fecha_lanzamiento
         self.fecha_entrega = fecha_entrega
         lista = []
@@ -80,10 +85,10 @@ class Coleccion(db.Model, UserMixin):
             lista.append(Modelo.query.get(modelo_id))
         self.coleccion_tiene_modelo = lista
 
-    def crear(case_id, name, fecha_lanzamiento, fecha_entrega, usuarios, modelos):
+    def crear(case_id, name, cantidad_lentes, fecha_lanzamiento, fecha_entrega, usuarios, modelos):
         """Crea una coleccion"""
         coleccion = Coleccion(
-            case_id, name, fecha_lanzamiento, fecha_entrega, usuarios, modelos
+            case_id, name, cantidad_lentes, fecha_lanzamiento, fecha_entrega, usuarios, modelos
         )
         db.session.add(coleccion)
         db.session.commit()
@@ -124,9 +129,20 @@ class Coleccion(db.Model, UserMixin):
         return Coleccion.query.all()
 
     def get_most_used_model():
-        print(
-            (Coleccion.coleccion_tiene_modelo)
-            .query.count(Coleccion.coleccion_tiene_modelo.modelo_id)
-            .group_by(Coleccion.coleccion_tiene_modelo.modelo_id)
-            .first()
+        query = db.engine.execute(
+            text(
+                "SELECT modelo_id, COUNT(modelo_id) as total FROM coleccion_tiene_modelo GROUP BY modelo_id ORDER BY total desc LIMIT 1"
+            )
         )
+        modelo_id = [row[0] for row in query][0]
+        modelo = Modelo.get_by_id(modelo_id)
+        return modelo
+
+    def get_cant_most_used_model():
+        query = db.engine.execute(
+            text(
+                "SELECT COUNT(modelo_id) as total FROM coleccion_tiene_modelo GROUP BY modelo_id ORDER BY total desc LIMIT 1"
+            )
+        )
+        cant = [row[0] for row in query][0]
+        return cant

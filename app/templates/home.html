@@ -32,6 +32,9 @@
                                     Nombre
                                 </th>
                                 <th class="col-md-3">
+                                    Cantidad de lentes
+                                </th>
+                                <th class="col-md-3">
                                     Fecha de lanzamiento
                                 </th>
                                 <th class="col-md-3">
@@ -49,6 +52,9 @@
                                 <th class="col-md-3">
                                     Fabricación
                                 </th>
+                                <th class="col-md-3">
+                                    Distribución
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -56,6 +62,9 @@
                             <tr>
                                 <td class="col-md-3">
                                     {{coleccion.name}}
+                                </td>
+                                <td class="col-md-3">
+                                    {{coleccion.cantidad_lentes}}
                                 </td>
                                 <td class="col-md-3">
                                     {{coleccion.fecha_lanzamiento.strftime('%d-%m-%Y')}}
@@ -163,6 +172,28 @@
                                     No tienes permisos para administrar la fabricación.
                                 </td>
                                 {% endif %}
+
+                                {% if session["current_rol"] == "Comercial" %}
+                                {% if "Planificación de distribución" in get_ready_tasks(coleccion.case_id) %}
+                                <td class="col-md-3">
+                                    <a class="btn btn-primary"
+                                        href="{{ url_for('nueva_distribucion', id_coleccion=coleccion.id) }}">Planificar</a>
+                                </td>
+                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Planificación de distribución")
+                                %}
+                                <td class="col-md-3">
+                                    <a class="btn btn-primary"
+                                        href="{{ url_for('ver_lotes', id_coleccion=coleccion.id) }}">Ver lotes</a>
+                                </td>
+                                {% else %}
+                                <td class="col-md-3"> Nada que hacer...</td>
+                                {% endif %}
+                                {% else %}
+                                <td class="col-md-3">
+                                    No tienes permisos para administrar la distribución.
+                                </td>
+                                {% endif %}
+
                             </tr>
                             {% endfor %}
                         </tbody>

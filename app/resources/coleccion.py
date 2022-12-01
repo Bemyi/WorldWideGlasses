@@ -7,6 +7,9 @@ from app.form.coleccion.reprogramar_coleccion import FormReprogramarColeccion
 from app.form.tarea.alta_tarea import FormAltaTarea
 from app.models.coleccion import Coleccion
 from app.models.tarea import Tarea
+from app.models.sede import Sede
+from app.models.coleccion_sede import Coleccion_sede
+
 from app.helpers.bonita_api import (
     init_process,
     assign_task,
@@ -49,6 +52,7 @@ def crear():
             Coleccion.crear(
                 case_id,
                 nombre,
+                form.cantidad_lentes.data,
                 fecha_lanzamiento,
                 fecha_lanzamiento - timedelta(30),
                 [1, 2, 3],
@@ -207,3 +211,81 @@ def elaborar_plan(id_coleccion):
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
     return redirect(url_for("home"))
+
+@login_required
+def nueva_distribucion(id_coleccion):
+    if session["current_rol"] == "Comercial":
+        coleccion = Coleccion.get_by_id(id_coleccion)
+        sedes = Sede.sedes()
+        return render_template(
+            "coleccion/planificar_distribucion.html",
+            coleccion=coleccion,
+            sedes=sedes,
+        )
+    else:
+        flash("No tienes permiso para acceder a este sitio", "error")
+    return redirect(url_for("home"))
+
+@login_required
+def planificar_distribucion(id_coleccion):
+    if session["current_rol"] == "Comercial":
+        cantidades = request.form.getlist("cantidades[]")
+        coleccion = Coleccion.get_by_id(id_coleccion)
+        cant = 0
+        for c in cantidades:
+            cant = cant + int(c)
+        if cant <= coleccion.cantidad_lentes:
+            time.sleep(5)
+            taskId = getUserTaskByName(
+                "Planificación de distribución",
+                coleccion.case_id,
+            )
+            assign_task(taskId)
+            # Se finaliza la tarea
+            updateUserTask(taskId, "completed")
+            for index, c in enumerate(cantidades):
+                if int(c) > 0:
+                    Coleccion_sede.crear(id_coleccion, index+1, c, False)
+            flash("La distribución se planificó con éxito", "success")
+            return redirect(url_for("home"))
+        else:
+            sedes = Sede.sedes()
+            flash("No se cuenta con la cantidad de lotes suficientes para distribuir", "error")
+            return render_template(
+                "coleccion/planificar_distribucion.html",
+                coleccion=coleccion,
+                sedes=sedes,
+            )
+    else:
+        flash("No tienes permiso para acceder a este sitio", "error")
+    return redirect(url_for("home"))
+
+@login_required
+def ver_lotes(id_coleccion):
+    if session["current_rol"] == "Comercial":
+        coleccion = Coleccion.get_by_id(id_coleccion)
+        lotes = Coleccion_sede.get_by_id_coleccion(id_coleccion)
+        return render_template(
+            "coleccion/ver_lotes.html",
+            coleccion=coleccion,
+            lotes=lotes,
+        )
+    else:
+        flash("No tienes permiso para acceder a este sitio", "error")
+    return redirect(url_for("home"))
+
+@login_required
+def enviar_lote(id_lote):
+    lote = Coleccion_sede.get_by_id(id_lote)
+    if session["current_rol"] == "Comercial":
+        lote.enviar()
+        flash("Se realizo el envío con éxito", "success")
+    else:
+        flash("No tienes permiso para acceder a este sitio", "error")
+    coleccion = Coleccion.get_by_id(lote.id_coleccion)
+    lotes = Coleccion_sede.get_by_id_coleccion(lote.id_coleccion)
+    return render_template(
+        "coleccion/ver_lotes.html",
+        coleccion=coleccion,
+        lotes=lotes,
+    )

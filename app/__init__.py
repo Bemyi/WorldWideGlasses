@@ -55,6 +55,8 @@ def create_app(test_config=None):
         from app.models.tipo import Tipo
         from app.models.modelo import Modelo
         from app.models.coleccion import Coleccion
+        from app.models.sede import Sede
+        from app.models.coleccion_sede import Coleccion_sede
 
         db.create_all()
 
@@ -165,6 +167,29 @@ def create_app(test_config=None):
         "reservar_espacio",
         reservas.reservar_espacio,
         methods=["POST"],
+    )
+
+    # Ruta de planificación de distribución
+    app.add_url_rule(
+        "/coleccion/<id_coleccion>/nueva_distribucion",
+        "nueva_distribucion",
+        coleccion.nueva_distribucion,
+    )
+    app.add_url_rule(
+        "/coleccion/<id_coleccion>/planificar_distribucion",
+        "planificar_distribucion",
+        coleccion.planificar_distribucion,
+        methods=["GET", "POST"]
+    )
+    app.add_url_rule(
+        "/coleccion/<id_coleccion>/ver_lotes",
+        "ver_lotes",
+        coleccion.ver_lotes,
+    )
+    app.add_url_rule(
+        "/coleccion/<id_lote>/enviar_lote",
+        "enviar_lote",
+        coleccion.enviar_lote,
     )
 
     # Ruta de tipo

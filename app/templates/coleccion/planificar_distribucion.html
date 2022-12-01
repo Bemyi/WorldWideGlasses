@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+{% block title %}Planificar Distribución{% endblock %}
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/select2.js')}}" type="text/javascript"></script>
+{% endblock %}
+{% block content %}
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category == "success" %}
+    <div class="alert alert-success alert-dismissible">
+        {{ message }} <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% else %}
+    <div class="alert alert-danger alert-dismissible">
+        {{ message }} <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">Planificar Distribución</div>
+                <div class="card-body">
+                    <form class="form" method="POST"
+                        action="{{ url_for('planificar_distribucion', id_coleccion=coleccion.id, ) }}">
+
+                        <div class="form-group">
+                            <div class="form-group row justify-content-center">
+                                <div class="col-md-10">
+                                    <div class="card">
+                                        <div class="card-header">Sedes</div>
+                                        <div class="card-body">
+                                            <table class="table">
+                                                <tbody>
+                                                    <tr>
+                                                        <div class="col-md-3">
+                                                            <td class="col-md-3">
+                                                                Nombre
+                                                            </td>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <td class="col-md-3">
+                                                                Cantidad
+                                                            </td>
+                                                        </div>
+                                                    </tr>
+                                                    {% for sede in sedes %}
+                                                    <tr>
+                                                        <div class="col-md-3">
+                                                            <td class="col-md-3">
+                                                                {{sede.name}}
+                                                            </td>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <td class="col-md-3">
+                                                                <input type="number" name="cantidades[]" value="0">
+                                                            </td>
+                                                        </div>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row justify-content-center">
+                            <div class="col-md-10">
+                                <button type="submit" class="btn btn-primary">Cargar</button>
+                                <button type="reset" class="btn btn-primary">Limpiar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -144,10 +144,7 @@
                                         href="{{ url_for('seleccionar_espacio', id_coleccion=coleccion.id) }}">Seleccionar
                                         espacio de fabricación</a>
                                 </td>
-                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Reservar espacio de
-                                fabricación") and "Elaborar plan de fabricación" not in
-                                get_ready_tasks(coleccion.case_id) and not
-                                get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación") %}
+                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Reservar espacio de fabricación") and "Elaborar plan de fabricación" not in get_ready_tasks(coleccion.case_id) and not get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación") %}
                                 <td class="col-md-3">
                                     <a class="btn btn-success"
                                         href="{{ url_for('recibir_materiales', id_coleccion=coleccion.id) }}">Marcar

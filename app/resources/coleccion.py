@@ -19,6 +19,7 @@ from app.helpers.bonita_api import (
     get_ready_tasks,
     get_completed_tasks_by_name,
     deleteCase,
+    get_bonita_variable
 )
 
 from app.models.modelo import Modelo
@@ -208,13 +209,15 @@ def modificar_fecha(id_coleccion):
                 flash("No se puede reprogramar en este momento", "error")
                 return redirect(url_for("home"))
 
-            taskId = getUserTaskByName(
-                "Planificación de distribución",
-                Coleccion.get_by_id(id_coleccion).case_id,
-            )
-            assign_task(taskId)
-            # Se finaliza la tarea
-            updateUserTask(taskId, "completed")
+            # Si aun no planifiqué la distribución
+            if "Planificación de distribución" in get_ready_tasks(coleccion.case_id):
+                taskId = getUserTaskByName(
+                    "Planificación de distribución",
+                    Coleccion.get_by_id(id_coleccion).case_id,
+                )
+                assign_task(taskId)
+                # Se finaliza la tarea
+                updateUserTask(taskId, "completed")
             nueva_fecha = form.fecha_lanzamiento.data
             coleccion.modificar_lanzamiento(nueva_fecha)
             while "Seleccionar fecha de lanzamiento" not in get_ready_tasks(
@@ -229,10 +232,18 @@ def modificar_fecha(id_coleccion):
             updateUserTask(taskId, "completed")
             coleccion.modificar_entrega(coleccion.fecha_lanzamiento - timedelta(30))
             flash("Colección reprogramada con éxito!", "success")
-            while "Consulta de materiales a la API" not in get_ready_tasks(
-                coleccion.case_id
-            ):
-                print("Cargando CONSULTA MATERIALES...")
+            
+            # Si aun no planifiqué la distribución
+            if not get_bonita_variable(coleccion.case_id, "materiales_disponibles"):
+                while "Consulta de materiales a la API" not in get_ready_tasks(
+                    coleccion.case_id
+                ):
+                    print("Cargando CONSULTA MATERIALES...")
+            else:
+                while "Consultar espacio de fabricación" not in get_ready_tasks(
+                    coleccion.case_id
+                ):
+                    print("Cargando CONSULTA ESPACIOS...")
             return redirect(url_for("home"))
         else:
             return render_template(

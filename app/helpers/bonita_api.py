@@ -88,11 +88,12 @@ def assign_task(taskId):
 @login_required
 def updateUserTask(taskId, state):
     requestSession = requests.Session()
-    URL = "http://localhost:8080/bonita/API/bpm/userTask/" + taskId
+    URL = "http://localhost:8080/bonita/API/bpm/humanTask/" + taskId
     headers = getBonitaHeaders()
     body = {"state": state}
     data = json.dumps(body)
     response = requestSession.put(URL, headers=headers, data=data)
+    print("Print del update user task:")
     print(response)
 
 
@@ -118,16 +119,34 @@ def set_bonita_variable(case_id, variable_name, variable_value, type):
     print("Valor de la variable"+variable_name+":")
     print(response.json()["value"])
 
+@login_required
+def get_bonita_variable(case_id, variable_name):
+    """setea un valor a la variable que es pasada por parametro"""
+    requestSession = requests.Session()
+    URL = (
+        "http://localhost:8080/bonita/API/bpm/caseVariable/"
+        + str(case_id)
+        + "/"
+        + variable_name
+    )
+    headers = getBonitaHeaders()
+    response = requestSession.get(URL, headers=headers)
+    print("Response de get variable bonita para la variable "+variable_name+":")
+    print(response)
+    print("Valor de la variable "+variable_name+":")
+    print(response.json()["value"])
+    return response.json()["value"]
+
 
 @login_required
 def getUserTaskByName(taskName, caseId):
     """Obtengo la tarea por su case y name para tener su id"""
     requestSession = requests.Session()
-    URL = "http://localhost:8080/bonita/API/bpm/userTask"
+    URL = "http://localhost:8080/bonita/API/bpm/humanTask?f=caseId="+str(caseId)+"&f=name="+taskName
     headers = getBonitaHeaders()
-    params = {"f": "name=" + taskName, "caseId": caseId}
-    response = requestSession.get(URL, headers=headers, params=params)
-    print("Response del get user task:")
+    response = requestSession.get(URL, headers=headers)
+    print("Response del get user task para el case "+str(caseId)+":")
+    print(URL)
     print(response)
     print(response.json())
     print(response.json()[0]["id"])
@@ -155,11 +174,10 @@ def get_ready_tasks(case_id):
 def get_completed_tasks_by_name(case_id, name):
     requestSession = requests.Session()
     URL = (
-        "http://localhost:8080/bonita/API/bpm/archivedHumanTask"
+        "http://localhost:8080/bonita/API/bpm/archivedHumanTask?f=caseId="+str(case_id)+"&f=name="+name
     )
     headers = getBonitaHeaders()
-    params = {"f": "caseId="+str(case_id), "f":"name="+name}
-    response = requestSession.get(URL, headers=headers, params=params)
+    response = requestSession.get(URL, headers=headers)
     print("Response del get tareas completed para el case "+str(case_id)+":")
     tareas = []
     print(response.status_code)

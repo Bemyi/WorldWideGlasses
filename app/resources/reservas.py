@@ -147,8 +147,6 @@ def guardar_materiales(id_coleccion):
             "true",
             "java.lang.Boolean",
         )
-        while ("Consulta de materiales a la API" not in get_ready_tasks(Coleccion.get_by_id(id_coleccion).case_id)):
-            print("Cargando...")
         taskId = getUserTaskByName(
             "Consulta de materiales a la API", Coleccion.get_by_id(id_coleccion).case_id
         )

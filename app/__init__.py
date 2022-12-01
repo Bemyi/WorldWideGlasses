@@ -96,6 +96,7 @@ def create_app(test_config=None):
         "/coleccion/<id_coleccion>/reprogramar",
         "reprogramar_coleccion",
         coleccion.reprogramar,
+        methods=["POST"],
     )
     app.add_url_rule(
         "/coleccion/<id_coleccion>/modificar_fecha",
@@ -137,7 +138,7 @@ def create_app(test_config=None):
         "/coleccion/<id_coleccion>/<id_tarea>/eliminar",
         "eliminar_tarea",
         tarea.eliminar_tarea,
-        methods=["GET", "POST", "DELETE"],
+        methods=["GET", "DELETE"],
     )
     app.add_url_rule(
         "/coleccion/<id_coleccion>/<id_tarea>/finalizar",

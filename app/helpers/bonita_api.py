@@ -8,12 +8,13 @@ from flask import session
 def getActiveCases():
     """Se recupera los cases activos"""
     requestSession = requests.Session()
-    URL = "http://localhost:8080/bonita/API/bpm/userTask"
+    URL = "http://localhost:8080/bonita/API/bpm/case"
     headers = getBonitaHeaders()
-    params = {"d": "actorId", "f": "state=ready"}
+    params = {"state": "started"}
     response = requestSession.get(URL, headers=headers, params=params)
-    print("Response:")
+    print("Response del getActiveCases:")
     print(response)
+    print(response.json())
     return response.json()
 
 
@@ -24,8 +25,9 @@ def getClosedCases():
     headers = getBonitaHeaders()
     params = {"name": "Creación de colección"}
     response = requestSession.get(URL, headers=headers, params=params)
-    print("Response:")
+    print("Response del getClosedCases:")
     print(response)
+    print(response.json())
     return response.json()
 
 

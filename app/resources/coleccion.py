@@ -238,6 +238,10 @@ def modificar_fecha(id_coleccion):
             updateUserTask(taskId, "completed")
             coleccion.modificar_entrega(coleccion.fecha_lanzamiento - timedelta(30))
             flash("Colección reprogramada con éxito!", "success")
+            while "Consulta de materiales a la API" not in get_ready_tasks(
+                coleccion.case_id
+            ):
+                print("Cargando...")
             return redirect(url_for("home"))
         else:
             return render_template(

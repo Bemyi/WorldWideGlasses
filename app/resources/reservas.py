@@ -170,7 +170,7 @@ def recibir_materiales(id_coleccion):
         flash("Materiales recibidos!", "success")
     else:
         flash("No tienes permiso para acceder a este sitio", "error")
-    # doy tiempo a que avance el proceso
+    # Espero a que avance a la siguiente tarea antes de redirigir al home, para mostrar bien los botones
     while ("Elaborar plan de fabricación" not in get_ready_tasks(Coleccion.get_by_id(id_coleccion).case_id)):
         print("Cargando...")
     return redirect(url_for("home"))

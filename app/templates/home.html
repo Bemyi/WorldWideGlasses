@@ -23,7 +23,11 @@
     <div class="row justify-content-center">
         <div class="col-md-16">
             <div class="card align-self-center">
-                <div class="card-header">Colecciones</div>
+                <div class="card-header">Colecciones
+                    {% if session["current_rol"] == "Creativa" %}
+                        <a class="badge badge-pill badge-primary" href="{{ url_for('nueva_coleccion') }}" role="button">Nueva</a>
+                    {% endif %}
+                </div>
                 <div class="card-body">
                     <table class="table">
                         <thead class="thead-light">
@@ -43,18 +47,27 @@
                                 <th class="col-md-3">
                                     Modelos
                                 </th>
+                                {% if session["current_rol"] == "Operaciones" %}
                                 <th class="col-md-3">
                                     Reservas
                                 </th>
                                 <th class="col-md-3">
-                                    Reprogramación
-                                </th>
-                                <th class="col-md-3">
                                     Fabricación
                                 </th>
+                                {% elif session["current_rol"] == "Comercial" %}
                                 <th class="col-md-3">
                                     Distribución
                                 </th>
+                                {% elif session["current_rol"] == "Creativa" %}
+                                <th class="col-md-3">
+                                    Reprogramación
+                                </th>
+                                {% endif %}
+                                {% if session["current_rol"] == "Operaciones" %}
+                                <th class="col-md-3">
+                                    
+                                </th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -140,10 +153,43 @@
                                 {% else %}
                                 <td class="col-md-3"> Nada que hacer...</td>
                                 {% endif %}
-                                {% else %}
+                                {% endif %}
+
+                                {% if session["current_rol"] == "Operaciones" %}
+                                {% if "Elaborar plan de fabricación" in get_ready_tasks(coleccion.case_id) %}
                                 <td class="col-md-3">
-                                    No tienes permisos para manejar las reservas.
+                                    <a class="btn btn-primary"
+                                        href="{{ url_for('planificar_fabricacion', id_coleccion=coleccion.id) }}">Elaborar
+                                        plan de fabricación</a>
                                 </td>
+                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación")
+                                %}
+                                <td class="col-md-3">
+                                    <a class="btn btn-primary"
+                                        href="{{ url_for('administrar_tareas', id_coleccion=coleccion.id) }}">
+                                        Ver tareas
+                                    </a>
+                                </td>
+                                {% else %}
+                                <td class="col-md-3"> Nada que hacer...</td>
+                                {% endif %}
+                                {% endif %}
+
+                                {% if session["current_rol"] == "Comercial" %}
+                                {% if "Planificación de distribución" in get_ready_tasks(coleccion.case_id) %}
+                                <td class="col-md-3">
+                                    <a class="btn btn-primary"
+                                        href="{{ url_for('nueva_distribucion', id_coleccion=coleccion.id) }}">Planificar</a>
+                                </td>
+                                {% elif "Asociar lotes con las órdenes de distribución" in
+                                get_ready_tasks(coleccion.case_id) %}
+                                <td class="col-md-3">
+                                    <a class="btn btn-primary"
+                                        href="{{ url_for('ver_lotes', id_coleccion=coleccion.id) }}">Ver lotes</a>
+                                </td>
+                                {% else %}
+                                <td class="col-md-3"> Nada que hacer...</td>
+                                {% endif %}
                                 {% endif %}
 
                                 {% if session["current_rol"] == "Creativa" %}
@@ -157,56 +203,22 @@
                                         href="{{ url_for('reprogramar_coleccion', id_coleccion=coleccion.id) }}">Reprogramar
                                         Colección</a> 
                                 </td>    
+                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación") and "Asociar lotes con las órdenes de distribución" not in get_ready_tasks(coleccion.case_id) %}
+                                <td> <a class="btn btn-danger"
+                                        href="{{ url_for('reprogramar_coleccion', id_coleccion=coleccion.id) }}">Reprogramar
+                                        Colección</a> 
+                                </td>    
                                 {% else %}
                                 <td class="col-md-3"> Nada que hacer...</td>
                                 {% endif %}
-                                {% else %}
-                                <td class="col-md-3"> No tienes permisos para reprogramar. </td>
                                 {% endif %}
-
+                                
                                 {% if session["current_rol"] == "Operaciones" %}
-                                {% if "Elaborar plan de fabricación" in get_ready_tasks(coleccion.case_id) %}
-                                <td class="col-md-3">
-                                    <a class="btn btn-primary"
-                                        href="{{ url_for('planificar_fabricacion', id_coleccion=coleccion.id) }}">Elaborar
-                                        plan de fabricación</a>
-                                </td>
-                                {% elif get_completed_tasks_by_name(coleccion.case_id, "Elaborar plan de fabricación") %}
-                                <td class="col-md-3">
-                                    <a class="btn btn-primary"
-                                        href="{{ url_for('administrar_tareas', id_coleccion=coleccion.id) }}">
-                                        Ver tareas
-                                    </a>
-                                </td>
-                                {% else %}
-                                <td class="col-md-3"> Nada que hacer...</td>
-                                {% endif %}
-                                {% else %}
-                                <td class="col-md-3">
-                                    No tienes permisos para administrar la fabricación.
+                                <td> <a class="btn btn-danger"
+                                        href="{{ url_for('eliminar_coleccion', id_coleccion=coleccion.id) }}">Eliminar
+                                        Colección</a> 
                                 </td>
                                 {% endif %}
-
-                                {% if session["current_rol"] == "Comercial" %}
-                                {% if "Planificación de distribución" in get_ready_tasks(coleccion.case_id) %}
-                                <td class="col-md-3">
-                                    <a class="btn btn-primary"
-                                        href="{{ url_for('nueva_distribucion', id_coleccion=coleccion.id) }}">Planificar</a>
-                                </td>
-                                {% elif "Asociar lotes con las órdenes de distribución" in get_ready_tasks(coleccion.case_id) %}
-                                <td class="col-md-3">
-                                    <a class="btn btn-primary"
-                                        href="{{ url_for('ver_lotes', id_coleccion=coleccion.id) }}">Ver lotes</a>
-                                </td>
-                                {% else %}
-                                <td class="col-md-3"> Nada que hacer...</td>
-                                {% endif %}
-                                {% else %}
-                                <td class="col-md-3">
-                                    No tienes permisos para administrar la distribución.
-                                </td>
-                                {% endif %}
-
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -214,12 +226,6 @@
                 </div>
             </div>
         </div>
-        <br>
-        {% if session["current_rol"] == "Creativa" %}
-        <div class="col-md-16">
-            <a class="btn btn-primary" href="{{ url_for('nueva_coleccion') }}" role="button">Crear colección</a>
-        </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

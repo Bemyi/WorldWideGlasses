@@ -113,7 +113,7 @@ def set_bonita_variable(case_id, variable_name, variable_value, type):
     response = requestSession.get(URL, headers=headers)
     print("Response al hacer get de variable bonita:")
     print(response)
-    print("Valor de la variable:")
+    print("Valor de la variable"+variable_name+":")
     print(response.json()["value"])
 
 
@@ -123,7 +123,7 @@ def getUserTaskByName(taskName, caseId):
     requestSession = requests.Session()
     URL = "http://localhost:8080/bonita/API/bpm/userTask"
     headers = getBonitaHeaders()
-    params = {"f": "name="+taskName, "caseId": caseId}
+    params = {"f": "name=" + taskName, "caseId": caseId}
     response = requestSession.get(URL, headers=headers, params=params)
     print("Response del get user task:")
     print(response)
@@ -170,6 +170,14 @@ def get_completed_tasks_by_name(case_id, name):
         tareas = [task["name"] for task in response.json()]
     print(tareas)
     return tareas
+
+
+def deleteCase(case_id):
+    requestSession = requests.Session()
+    URL = "http://localhost:8080/bonita/API/bpm/case/" + str(case_id)
+    headers = getBonitaHeaders()
+    response = requestSession.delete(URL, headers=headers)
+    print(response.status_code)
 
 
 @login_required

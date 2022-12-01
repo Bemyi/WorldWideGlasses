@@ -23,7 +23,6 @@ class Coleccion_sede(db.Model, UserMixin):
         id_sede,
         cantidad_lotes,
         entregado,
-
     ):
         self.id_coleccion = id_coleccion
         self.id_sede = id_sede
@@ -38,10 +37,10 @@ class Coleccion_sede(db.Model, UserMixin):
 
     def get_by_id_coleccion(id_coleccion):
         return Coleccion_sede.query.filter_by(id_coleccion=id_coleccion).all()
-    
+
     def get_by_id(id):
         return Coleccion_sede.query.filter_by(id=id).first()
-    
+
     def estado(self):
         if self.entregado:
             return "Enviado"
@@ -53,7 +52,15 @@ class Coleccion_sede(db.Model, UserMixin):
         db.session.commit()
 
     def lotes_enviados(id_coleccion):
-        lotes = Coleccion_sede.query.filter_by(id_coleccion=id_coleccion, entregado=False).all()
+        lotes = Coleccion_sede.query.filter_by(
+            id_coleccion=id_coleccion, entregado=False
+        ).all()
         print("LOTES ENVIADOS!!")
         print(lotes)
         return len(lotes) == 0
+
+    def eliminar(id_coleccion):
+        lista = Coleccion_sede.query.filter_by(id_coleccion=id_coleccion).all()
+        for l in lista:
+            db.session.delete(l)
+            db.session.commit()
